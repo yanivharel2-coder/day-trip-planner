@@ -1,1588 +1,1414 @@
 <!DOCTYPE html>
 <html lang="he" dir="rtl">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>מתכנן מסלול יומי</title>
-  <!-- Tailwind CSS CDN -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Font Awesome Icons CDN -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
-  <style>
-    * {
-      -webkit-tap-highlight-color: transparent;
-      font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-    }
-    input:focus, select:focus, textarea:focus {
-      outline: none;
-    }
-    .autocomplete-dropdown {
-      scrollbar-width: thin;
-      scrollbar-color: #cbd5e1 #f8fafc;
-    }
-    .autocomplete-dropdown::-webkit-scrollbar {
-      width: 6px;
-    }
-    .autocomplete-dropdown::-webkit-scrollbar-thumb {
-      background: #cbd5e1;
-      border-radius: 9999px;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Day Trip Flow Planner 2.0 - קטלוג מאומת</title>
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-hover: #1d4ed8;
+            --bg: #f8fafc;
+            --card-bg: #ffffff;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+            --success: #16a34a;
+            --amber: #d97706;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+        body { background: var(--bg); color: var(--text-main); padding: 20px 14px; }
+        .container { max-width: 840px; margin: 0 auto; }
+
+        header { text-align: center; margin-bottom: 20px; }
+        header h1 { font-size: 24px; color: var(--text-main); margin-bottom: 6px; }
+        header p { color: var(--text-muted); font-size: 14px; }
+
+        .hotel-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+        }
+        .hotel-info h3 { font-size: 15px; margin-bottom: 2px; }
+        .hotel-info p { font-size: 13px; color: var(--text-muted); }
+
+        .planning-list { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; }
+        .planning-item {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 14px 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+        }
+        .item-head { display: flex; justify-content: space-between; align-items: center; }
+        .item-title { font-weight: bold; font-size: 15px; }
+        .item-tag { font-size: 11px; background: #e0f2fe; color: #0369a1; padding: 2px 8px; border-radius: 12px; }
+        .item-sub { font-size: 12px; color: var(--text-muted); }
+
+        .note-input {
+            width: 100%;
+            border: 1px solid var(--border);
+            background: #f8fafc;
+            padding: 7px 10px;
+            border-radius: 6px;
+            font-size: 13px;
+            outline: none;
+            margin-top: 4px;
+        }
+        .note-input:focus { border-color: var(--primary); background: #fff; }
+
+        .btn-del {
+            background: none;
+            border: none;
+            color: #ef4444;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .actions-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-bottom: 24px;
+        }
+        .btn {
+            padding: 12px;
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: bold;
+            border: none;
+            cursor: pointer;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+        .btn-add { background: #e2e8f0; color: var(--text-main); }
+        .btn-start { background: var(--success); color: white; }
+        .btn-share { background: #6366f1; color: white; }
+        .btn:hover { opacity: 0.92; }
+
+        .results-section {
+            display: none;
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 20px;
+            margin-bottom: 24px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        }
+        .results-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 12px;
+            margin-bottom: 16px;
+        }
+        .results-title { font-size: 18px; font-weight: bold; color: #0f172a; }
+
+        .summary-dashboard {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .kpi-card {
+            background: #f8fafc;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 12px;
+            text-align: center;
+        }
+        .kpi-val { font-size: 17px; font-weight: bold; color: var(--primary); }
+        .kpi-label { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+
+        .flow-timeline { display: flex; flex-direction: column; gap: 0; position: relative; }
+        .flow-step {
+            background: #ffffff;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 14px;
+            position: relative;
+            z-index: 2;
+        }
+        .flow-step.hotel-step {
+            background: #f1f5f9;
+            border-color: #cbd5e1;
+        }
+
+        .flow-leg {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 10px 0;
+            position: relative;
+        }
+        .flow-leg-badge {
+            background: #eff6ff;
+            border: 1px dashed #93c5fd;
+            color: #1e40af;
+            font-size: 12px;
+            font-weight: 600;
+            padding: 5px 12px;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            z-index: 2;
+        }
+
+        .btn-maps-nav {
+            margin-top: 18px;
+            background: #0284c7;
+            color: white;
+            width: 100%;
+            padding: 12px;
+            border-radius: 8px;
+            border: none;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            font-size: 14px;
+        }
+        .btn-maps-nav:hover { background: #0369a1; }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.6);
+            z-index: 100;
+            padding: 16px;
+            overflow-y: auto;
+        }
+        .modal-content {
+            background: var(--card-bg);
+            border-radius: 16px;
+            max-width: 680px;
+            margin: 24px auto;
+            padding: 20px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; border-bottom: 1px solid var(--border); padding-bottom: 10px; }
+        .close-btn { font-size: 24px; border: none; background: none; cursor: pointer; color: var(--text-muted); }
+
+        .modal-reference-bar {
+            background: #f8fafc;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 8px 12px;
+            font-size: 12px;
+            color: #334155;
+            margin-bottom: 14px;
+        }
+
+        .category-tabs { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 8px; margin-bottom: 14px; scrollbar-width: none; }
+        .tab-btn {
+            padding: 7px 14px;
+            border-radius: 20px;
+            border: 1px solid var(--border);
+            background: white;
+            font-size: 13px;
+            white-space: nowrap;
+            cursor: pointer;
+        }
+        .tab-btn.active { background: var(--primary); color: white; border-color: var(--primary); font-weight: bold; }
+
+        .catalog-card {
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 14px;
+            margin-bottom: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        .catalog-card.already-added { background: #f8fafc; opacity: 0.55; }
+        .catalog-card-header { display: flex; justify-content: space-between; font-weight: bold; }
+        .btn-select {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 8px 14px;
+            border-radius: 6px;
+            cursor: pointer;
+            align-self: flex-start;
+            margin-top: 6px;
+            font-size: 13px;
+            font-weight: bold;
+        }
+        .btn-select:disabled { background: #94a3b8; cursor: not-allowed; }
+
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #0f172a;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 13px;
+            display: none;
+            z-index: 1000;
+        }
+    </style>
 </head>
-<body class="bg-slate-50 text-slate-800 antialiased min-h-screen pb-24 text-right">
+<body>
 
-  <header class="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200 shadow-xs">
-    <div class="max-w-3xl mx-auto px-4 py-3 flex items-center justify-between">
-      <div class="flex items-center gap-2.5">
-        <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-blue-600 via-indigo-600 to-violet-600 text-white flex items-center justify-center shadow-md">
-          <i class="fa-solid fa-route text-sm"></i>
+<div class="container">
+    <header>
+        <h1>🧭 Day Trip Flow Planner 2.0</h1>
+        <p>תכנון יום טיול בקרקוב עם קטלוג מאומת ומיון מרחק דינמי</p>
+    </header>
+
+    <!-- מלון הבית -->
+    <div class="hotel-card">
+        <div class="hotel-info">
+            <h3>🏨 מלון הבית (בסיס היציאה והחזרה)</h3>
+            <p id="hotel-name">Sleeping in Krakow Main Market (Sławkowska 4/9)</p>
         </div>
-        <div>
-          <h1 class="text-base font-bold text-slate-900 leading-tight">מתכנן מסלול יומי</h1>
-          <p class="text-[11px] text-slate-500">תכנון מסלול, מרחקי הליכה מדויקים ושיתוף קבוצתי</p>
-        </div>
-      </div>
-
-      <div class="flex items-center gap-2">
-        <button 
-          onclick="openSettingsModal()" 
-          class="px-2.5 py-1.5 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-100 text-xs font-semibold flex items-center gap-1.5 transition shadow-2xs" 
-          title="הגדרות מפתח Google Maps">
-          <i class="fa-solid fa-gear"></i>
-        </button>
-        <button 
-          onclick="openShareModal()" 
-          class="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold flex items-center gap-1.5 transition shadow-xs">
-          <i class="fa-solid fa-share-nodes"></i>
-          <span>שתף</span>
-        </button>
-        <button 
-          onclick="resetTripPlan()" 
-          class="px-2.5 py-1.5 rounded-lg border border-red-200 text-red-600 hover:bg-red-50 text-xs font-semibold flex items-center gap-1.5 transition" 
-          title="איפוס מסלול">
-          <i class="fa-solid fa-rotate-right"></i>
-        </button>
-      </div>
-    </div>
-  </header>
-
-  <!-- Settings Modal (Google API Key) -->
-  <div id="settingsModal" class="fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-xs flex items-center justify-center p-4 hidden">
-    <div class="bg-white rounded-3xl max-w-md w-full p-5 shadow-2xl border border-slate-200 flex flex-col text-right">
-      <div class="flex items-center justify-between pb-3 border-b border-slate-100 mb-3">
-        <div class="flex items-center gap-2">
-          <span class="w-8 h-8 rounded-xl bg-blue-100 text-blue-700 flex items-center justify-center text-sm font-bold">
-            <i class="fa-brands fa-google"></i>
-          </span>
-          <div>
-            <h3 class="text-sm font-bold text-slate-900 leading-tight">סנכרון Google Maps</h3>
-            <p class="text-[11px] text-slate-500">אופציונלי: מפתח אישי ל-Google Directions & Places</p>
-          </div>
-        </div>
-        <button onclick="closeSettingsModal()" class="w-8 h-8 rounded-full hover:bg-slate-100 text-slate-400 hover:text-slate-700 flex items-center justify-center text-sm">
-          <i class="fa-solid fa-xmark"></i>
-        </button>
-      </div>
-      <p class="text-xs text-slate-600 mb-3 leading-relaxed">
-        מנוע הניווט העירוני המובנה כבר מחשב מסלולי הליכה תואמי Google Maps בדיוק גבוה. אם ברשותך מפתח Google Maps אישי, תוכל להדביק אותו כאן:
-      </p>
-      <input 
-        type="text" 
-        id="googleApiKeyInput" 
-        dir="ltr"
-        placeholder="AIzaSy... (מפתח Google אופציונלי)" 
-        class="w-full px-3 py-2 text-xs font-mono border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none mb-3 text-left" 
-      />
-      <div class="flex items-center justify-end gap-2">
-        <button onclick="closeSettingsModal()" class="px-3 py-1.5 text-xs text-slate-600 font-semibold hover:bg-slate-100 rounded-lg">ביטול</button>
-        <button onclick="saveApiKeySetting()" class="px-4 py-1.5 text-xs text-white font-bold bg-blue-600 hover:bg-blue-700 rounded-lg shadow-xs">שמור מפתח</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- Share Modal -->
-  <div id="shareModal" class="fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-xs flex items-center justify-center p-4 hidden">
-    <div class="bg-white rounded-3xl max-w-lg w-full p-5 shadow-2xl border border-slate-200 flex flex-col max-h-[90vh] text-right">
-      <div class="flex items-center justify-between pb-3 border-b border-slate-100 mb-3">
-        <div class="flex items-center gap-2">
-          <span class="w-8 h-8 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center text-sm font-bold">
-            <i class="fa-solid fa-paper-plane"></i>
-          </span>
-          <div>
-            <h3 class="text-sm font-bold text-slate-900 leading-tight">שיתוף תוכנית היום</h3>
-            <p class="text-[11px] text-slate-500">שתף עם החברים ב-WhatsApp, בקישור אינטראקטיבי או בהעתקת טקסט</p>
-          </div>
-        </div>
-        <button onclick="closeShareModal()" class="w-8 h-8 rounded-full hover:bg-slate-100 text-slate-400 hover:text-slate-700 flex items-center justify-center text-sm">
-          <i class="fa-solid fa-xmark"></i>
-        </button>
-      </div>
-
-      <!-- Shareable App Link -->
-      <div class="mb-3 p-2.5 bg-blue-50/70 border border-blue-200 rounded-xl">
-        <div class="flex items-center justify-between mb-1">
-          <span class="text-[10px] font-bold text-blue-900 uppercase tracking-wider flex items-center gap-1">
-            <i class="fa-solid fa-link text-blue-600"></i> קישור אינטראקטיבי לאפליקציה
-          </span>
-          <button onclick="copyShareableUrl()" class="text-[10px] font-bold text-blue-700 hover:underline">
-            העתק קישור
-          </button>
-        </div>
-        <input 
-          type="text" 
-          id="shareUrlInput" 
-          readonly 
-          dir="ltr"
-          onclick="this.select()" 
-          class="w-full bg-white text-[11px] font-mono text-slate-700 border border-blue-200 rounded-lg px-2.5 py-1.5 focus:outline-none text-left" 
-        />
-      </div>
-
-      <!-- Preview text -->
-      <div class="flex-1 overflow-y-auto mb-3">
-        <label class="text-[11px] font-bold text-slate-500 uppercase tracking-wider block mb-1">תצוגה מקדימה של ההודעה:</label>
-        <pre id="sharePreviewText" dir="auto" class="p-3 bg-slate-50 border border-slate-200 rounded-xl text-[11px] font-mono text-slate-700 whitespace-pre-wrap max-h-48 overflow-y-auto leading-relaxed select-all text-start"></pre>
-      </div>
-
-      <!-- Action buttons inside modal -->
-      <div class="grid grid-cols-2 sm:grid-cols-3 gap-2 pt-2 border-t border-slate-100">
-        <button 
-          onclick="shareViaWhatsApp()" 
-          class="px-3 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold flex items-center justify-center gap-1.5 transition shadow-xs">
-          <i class="fa-brands fa-whatsapp text-sm"></i>
-          <span>WhatsApp</span>
-        </button>
-        <button 
-          onclick="copyItineraryText()" 
-          class="px-3 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold flex items-center justify-center gap-1.5 transition shadow-xs">
-          <i class="fa-solid fa-copy text-sm"></i>
-          <span>העתק טקסט</span>
-        </button>
-        <button 
-          onclick="triggerNativeShare()" 
-          class="col-span-2 sm:col-span-1 px-3 py-2 rounded-xl border border-slate-200 hover:bg-slate-100 text-slate-700 text-xs font-bold flex items-center justify-center gap-1.5 transition">
-          <i class="fa-solid fa-arrow-up-from-bracket text-sm"></i>
-          <span>שתף עוד...</span>
-        </button>
-      </div>
-    </div>
-  </div>
-
-  <!-- Toast Notification -->
-  <div id="toast" class="fixed top-4 left-1/2 -translate-x-1/2 z-50 transform -translate-y-16 opacity-0 transition-all duration-300 pointer-events-none">
-    <div class="px-4 py-2 rounded-full bg-slate-900/90 backdrop-blur-md text-white text-xs font-semibold shadow-xl border border-slate-700 flex items-center gap-2">
-      <i id="toastIcon" class="fa-solid fa-circle-check text-emerald-400 text-sm"></i>
-      <span id="toastMsg">הודעה</span>
-    </div>
-  </div>
-
-  <main class="max-w-3xl mx-auto px-4 pt-4">
-
-    <!-- Hotel Base Section -->
-    <section class="mb-4">
-      <div class="flex items-center justify-between mb-2">
-        <div class="flex items-center gap-1.5">
-          <i class="fa-solid fa-hotel text-xs text-blue-600"></i>
-          <h2 class="text-xs font-bold uppercase tracking-wider text-slate-700">מלון (נקודת התחלה)</h2>
-        </div>
-        <span class="text-[11px] text-slate-400">ברירת מחדל נשמרת אוטומטית</span>
-      </div>
-
-      <!-- Hotels Container with Mobile Accordion/Expand Support -->
-      <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5" id="hotelCardsContainer">
-        <!-- Injected via JavaScript -->
-      </div>
-
-      <!-- Mobile Expand Button (visible only on mobile) -->
-      <div class="sm:hidden mt-2">
-        <button 
-          id="mobileHotelExpandBtn" 
-          onclick="toggleMobileHotelsExpand()" 
-          class="w-full py-1.5 px-3 bg-white hover:bg-slate-100 border border-slate-200 rounded-xl text-xs font-bold text-slate-700 flex items-center justify-center gap-1.5 transition shadow-2xs">
-          <i id="mobileHotelExpandIcon" class="fa-solid fa-chevron-down text-slate-500 text-[10px]"></i>
-          <span id="mobileHotelExpandText">החלף מלון (מלון 2 / מלון 3)</span>
-        </button>
-      </div>
-    </section>
-
-    <!-- Top Action & Counter Bar -->
-    <section class="bg-white rounded-2xl p-3 shadow-xs border border-slate-200/80 mb-4 flex flex-wrap items-center justify-between gap-3">
-      <div class="flex items-center gap-2">
-        <span class="text-xs font-bold text-slate-700">פעילויות להיום:</span>
-        <div class="flex items-center bg-slate-100 rounded-xl p-0.5 border border-slate-200">
-          <button 
-            onclick="changeStopCount(-1)" 
-            class="w-7 h-7 rounded-lg bg-white text-slate-700 hover:bg-slate-200 flex items-center justify-center text-xs font-bold shadow-2xs">
-            -
-          </button>
-          <span id="activityCountBadge" class="w-8 text-center text-xs font-bold text-slate-900">2</span>
-          <button 
-            onclick="changeStopCount(1)" 
-            class="w-7 h-7 rounded-lg bg-white text-slate-700 hover:bg-slate-200 flex items-center justify-center text-xs font-bold shadow-2xs">
-            +
-          </button>
-        </div>
-      </div>
-
-      <div class="flex items-center gap-2">
-        <label class="flex items-center gap-1.5 text-xs text-slate-600 font-medium cursor-pointer">
-          <input type="checkbox" id="returnToHotelToggle" onchange="toggleReturnToHotel(this.checked)" checked class="rounded text-blue-600 focus:ring-0 ml-1" />
-          <span>חזרה למלון</span>
-        </label>
-        <button 
-          id="letsGoBtnTop" 
-          onclick="calculateTripDistances()" 
-          class="px-5 py-2 rounded-xl bg-gradient-to-l from-emerald-600 via-teal-600 to-cyan-600 hover:from-emerald-700 hover:to-cyan-700 text-white text-xs font-bold flex items-center gap-1.5 shadow-sm transition hover:shadow-md active:scale-98">
-          <i class="fa-solid fa-person-walking"></i>
-          <span>בוא נצא!</span>
-        </button>
-      </div>
-    </section>
-
-    <div id="summaryBanner" class="hidden mb-4 p-4 rounded-2xl bg-gradient-to-l from-emerald-50 via-teal-50 to-cyan-50 border border-emerald-200/80 shadow-2xs">
-      <div class="flex flex-wrap items-center justify-between gap-2 mb-2">
-        <div class="flex items-center gap-2">
-          <span class="w-8 h-8 rounded-xl bg-emerald-600 text-white flex items-center justify-center text-sm shadow-xs">
-            <i class="fa-solid fa-flag-checkered"></i>
-          </span>
-          <div>
-            <h3 class="text-xs font-bold uppercase tracking-wider text-emerald-900 leading-tight">סיכום מסלול</h3>
-            <p id="summarySubtitle" class="text-[11px] text-emerald-700">מרחקי הליכה מדויקים ברשת הרחובות</p>
-          </div>
-        </div>
-        <div class="flex items-center gap-3">
-          <div class="text-left">
-            <div class="text-[10px] uppercase font-bold text-emerald-800">מרחק הליכה כולל</div>
-            <div id="summaryTotalDistance" class="text-sm font-extrabold text-emerald-900">0.0 ק״מ</div>
-          </div>
-          <div class="text-left pr-3 border-r border-emerald-200">
-            <div class="text-[10px] uppercase font-bold text-emerald-800">זמן מתוכנן כולל</div>
-            <div id="summaryTotalDuration" class="text-sm font-extrabold text-emerald-900">0.0 שעות</div>
-          </div>
-        </div>
-      </div>
-      <!-- Detailed route legs pills -->
-      <div id="summaryLegsContainer" class="flex flex-wrap gap-1.5 pt-2 border-t border-emerald-200/60"></div>
+        <span style="font-size: 12px; background: #f1f5f9; color: #475569; padding: 4px 10px; border-radius: 6px; font-weight: bold;">בסיס קבוע 📍</span>
     </div>
 
-    <!-- Main Itinerary Flow Diagram -->
-    <div id="itineraryContainer" class="space-y-0 relative">
-      <!-- Injected via JavaScript -->
+    <!-- רשימת תחנות בתכנון -->
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+        <span style="font-weight: bold; font-size: 16px;">תחנות שנבחרו להיום:</span>
+        <span id="plan-counter" style="font-size: 13px; color: var(--text-muted);">0 אטרקציות</span>
     </div>
 
-    <!-- Bottom Action Controls -->
-    <div class="mt-6 flex flex-wrap items-center justify-center gap-3">
-      <button 
-        onclick="addNewActivity()" 
-        class="px-4 py-2.5 rounded-xl border border-slate-300 hover:bg-white text-slate-700 text-xs font-bold flex items-center gap-1.5 shadow-2xs transition">
-        <i class="fa-solid fa-plus text-slate-400"></i>
-        <span>הוסף עצירה נוספת</span>
-      </button>
-      <button 
-        id="letsGoBtnBottom" 
-        onclick="calculateTripDistances()" 
-        class="px-5 py-2.5 rounded-xl bg-gradient-to-l from-emerald-600 via-teal-600 to-cyan-600 hover:from-emerald-700 hover:to-cyan-700 text-white text-xs font-bold flex items-center gap-1.5 shadow-xs transition hover:shadow-md active:scale-98">
-        <i class="fa-solid fa-person-walking"></i>
-        <span>בוא נצא!</span>
-      </button>
-      <button 
-        onclick="openShareModal()" 
-        class="px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold flex items-center gap-1.5 shadow-xs transition">
-        <i class="fa-solid fa-share-nodes"></i>
-        <span>שתף לוח זמנים עם חברים</span>
-      </button>
+    <div class="planning-list" id="planningList">
+        <div style="text-align: center; color: var(--text-muted); padding: 30px; background: white; border-radius: 12px; border: 1px dashed var(--border);" id="empty-state">
+            הרשימה ריקה כרגע. לחצו על "+ הוסף אטרקציה" לבחירה מתוך 38 האטרקציות המאומתות בקטלוג.
+        </div>
     </div>
 
-  </main>
+    <!-- כפתורי פעולה -->
+    <div class="actions-grid">
+        <button class="btn btn-add" onclick="openModal()">+ הוסף אטרקציה</button>
+        <button class="btn btn-start" onclick="calculateAndShowPlan()">🚀 צא לדרך</button>
+        <button class="btn btn-share" onclick="shareTrip()">🔗 שתף מסלול</button>
+    </div>
 
-  <script>
-    const PRESET_HOTELS = [
-      {
-        id: 0,
-        shortTitle: "מלון",
-        name: "Sleeping in Krakow Main Market",
-        address: "Sławkowska 4/9, Old Town, 31-014 Kraków, Poland",
-        city: "Kraków",
-        lat: 50.06225,
-        lng: 19.93665
-      },
-      {
-        id: 1,
-        shortTitle: "מלון 2",
-        name: "Rezydencja & SPA Czarny Niedźwiedź",
-        address: "28 Wojdyłówka, 34-511 Kościelisko, Poland",
-        city: "Kościelisko",
-        lat: 49.2908,
-        lng: 19.8895
-      },
-      {
-        id: 2,
-        shortTitle: "מלון 3",
-        name: "Millou Aparthotel",
-        address: "Dolnych Młynów 9, Old Town, 31-124 Kraków, Poland",
-        city: "Kraków",
-        lat: 50.0645,
-        lng: 19.9298
-      }
-    ];
+    <!-- לוח תוצאות חישוב המסלול -->
+    <div class="results-section" id="resultsSection">
+        <div class="results-header">
+            <span class="results-title">📊 תדריך מסלול מחושב ליום הטיול</span>
+            <button class="btn-del" onclick="hideResults()">סגור חישוב</button>
+        </div>
 
-    // Accurate coordinates dictionary for reliable walking paths
-    const KNOWN_VENUES = {
-      "house of attractions": { lat: 50.05975, lng: 19.93805, type: "museum", label: "House of Attractions (Grodzka 2)" },
-      "grodzka 2": { lat: 50.05975, lng: 19.93805, type: "museum", label: "House of Attractions (Grodzka 2)" },
-      "bricks and figs krakow": { lat: 50.04478, lng: 19.96008, type: "sightseeing", label: "Bricks and Figs Kraków (Dąbrowskiego 20)" },
-      "bricks and figs": { lat: 50.04478, lng: 19.96008, type: "sightseeing", label: "Bricks and Figs Kraków" },
-      "bricks & figs": { lat: 50.04478, lng: 19.96008, type: "sightseeing", label: "Bricks and Figs Kraków" },
-      "ciao bella": { lat: 50.04610, lng: 19.95750, type: "restaurant", label: "Ciao Bella Restaurant (Dąbrowskiego 5)" },
-      "ciao bella krakow": { lat: 50.04610, lng: 19.95750, type: "restaurant", label: "Ciao Bella Restaurant" },
-      "park bednarskiego": { lat: 50.04250, lng: 19.94900, type: "park", label: "Park Bednarskiego (Podgórze)" },
-      "park im. wojciecha bednarskiego": { lat: 50.04250, lng: 19.94900, type: "park", label: "Park im. Wojciecha Bednarskiego" },
-      "park im.wojciecha bednarskiego w podgorzu": { lat: 50.04250, lng: 19.94900, type: "park", label: "Park Bednarskiego w Podgórzu" },
-      "kopiec krakusa": { lat: 50.03800, lng: 19.95830, type: "sightseeing", label: "Kopiec Krakusa (Krakus Mound)" },
-      "krakus mound": { lat: 50.03800, lng: 19.95830, type: "sightseeing", label: "Krakus Mound" },
-      "rynek podgorski": { lat: 50.04390, lng: 19.95360, type: "sightseeing", label: "Rynek Podgórski" },
-      "st. joseph's church": { lat: 50.04350, lng: 19.95420, type: "sightseeing", label: "St. Joseph's Church (Kościół św. Józefa)" },
-      "wawel": { lat: 50.0540, lng: 19.9354, type: "sightseeing", label: "Wawel Royal Castle" },
-      "wawel royal castle": { lat: 50.0540, lng: 19.9354, type: "sightseeing", label: "Wawel Royal Castle" },
-      "sukiennice": { lat: 50.0616, lng: 19.9373, type: "sightseeing", label: "Cloth Hall (Sukiennice)" },
-      "cloth hall": { lat: 50.0616, lng: 19.9373, type: "sightseeing", label: "Cloth Hall (Sukiennice)" },
-      "main market square": { lat: 50.0617, lng: 19.9373, type: "sightseeing", label: "Main Market Square (Rynek Główny)" },
-      "schindler's factory": { lat: 50.0474, lng: 19.9618, type: "museum", label: "Oskar Schindler's Enamel Factory" },
-      "fabryka schindlera": { lat: 50.0474, lng: 19.9618, type: "museum", label: "Fabryka Emalia Oskara Schindlera" },
-      "pod aniolami": { lat: 50.0573, lng: 19.9383, type: "restaurant", label: "Pod Aniołami Restaurant" },
-      "cafe camelot": { lat: 50.0631, lng: 19.9360, type: "cafe", label: "Cafe Camelot" },
-      "kladka bernatka": { lat: 50.0489, lng: 19.9478, type: "sightseeing", label: "Kładka Ojca Bernatka Bridge" },
-      "plac nowy": { lat: 50.0519, lng: 19.9449, type: "sightseeing", label: "Plac Nowy (Kazimierz)" },
-      "wieliczka": { lat: 49.9831, lng: 20.0558, type: "sightseeing", label: "Wieliczka Salt Mine" },
-      "energylandia": { lat: 49.9961, lng: 19.4098, type: "sightseeing", label: "Energylandia Amusement Park" },
-      "krupowki": { lat: 49.2952, lng: 19.9512, type: "shopping", label: "Krupówki Street (Zakopane)" },
-      "chocholow thermal baths": { lat: 49.4284, lng: 19.8247, type: "sightseeing", label: "Chochołowskie Termy" }
-    };
-
-    const CATEGORIES = {
-      museum: { label: "מוזיאון / תערוכה", icon: "fa-solid fa-building-columns", emoji: "🏛️", badge: "bg-purple-100 text-purple-800 border-purple-200" },
-      sightseeing: { label: "אתר תיירות / ציון דרך", icon: "fa-solid fa-landmark", emoji: "🏰", badge: "bg-blue-100 text-blue-800 border-blue-200" },
-      restaurant: { label: "מסעדה / אוכל", icon: "fa-solid fa-utensils", emoji: "🍽️", badge: "bg-amber-100 text-amber-800 border-amber-200" },
-      cafe: { label: "בית קפה / מאפייה", icon: "fa-solid fa-mug-saucer", emoji: "☕", badge: "bg-orange-100 text-orange-800 border-orange-200" },
-      park: { label: "פארק / טבע / הליכה", icon: "fa-solid fa-tree", emoji: "🌲", badge: "bg-emerald-100 text-emerald-800 border-emerald-200" },
-      shopping: { label: "קניות / שוק", icon: "fa-solid fa-bag-shopping", emoji: "🛍️", badge: "bg-pink-100 text-pink-800 border-pink-200" }
-    };
-
-    const CAT_KEYS = ["museum", "sightseeing", "restaurant", "cafe", "park", "shopping"];
-
-    // משתני מצב
-    let selectedHotelIdx = 0;
-    let permanentDefaultIdx = 0;
-    let isMobileHotelsExpanded = false;
-    let activities = [
-      { type: "museum", name: "House of Attractions", duration: 2.0, notes: "Grodzka 2, Old Town" },
-      { type: "sightseeing", name: "Bricks and Figs Krakow", duration: 2.0, notes: "Dąbrowskiego 20" }
-    ];
-    let returnToHotel = true;
-    let calculatedDistances = {};
-    let geocodeCache = {};
-    let userGoogleApiKey = "";
-
-    const STORAGE_KEY = "trip_planner_state_hebrew_v10";
-    const DEFAULT_HOTEL_KEY = "trip_planner_default_hotel_idx";
-    const GOOGLE_API_KEY = "trip_planner_google_api_key";
-
-    function getSearchUrl(query) {
-      return `https://www.google.com/search?q=${encodeURIComponent(query)}`;
-    }
-
-    function getMapUrl(query) {
-      return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`;
-    }
-
-    function getDirectionsUrl(origin, destination) {
-      const originParam = encodeURIComponent(origin);
-      const destParam = encodeURIComponent(destination);
-      return `https://www.google.com/maps/dir/?api=1&origin=${originParam}&destination=${destParam}&travelmode=walking`;
-    }
-
-    function formatDistance(km) {
-      if (km === undefined || km === null || isNaN(km)) return "0 ק״מ";
-      if (km < 1) {
-        const meters = Math.round(km * 1000);
-        return `${meters} מ׳ (${km.toFixed(2)} ק״מ)`;
-      }
-      return `${km.toFixed(2)} ק״מ`;
-    }
-
-    function showToast(msg, iconClass = "fa-solid fa-circle-check text-emerald-400") {
-      const toast = document.getElementById("toast");
-      const label = document.getElementById("toastMsg");
-      const icon = document.getElementById("toastIcon");
-      if (!toast || !label) return;
-      label.textContent = msg;
-      icon.className = iconClass + " text-sm shrink-0";
-      toast.classList.remove("-translate-y-16", "opacity-0");
-      toast.classList.add("translate-y-0", "opacity-100");
-      setTimeout(() => {
-        toast.classList.add("-translate-y-16", "opacity-0");
-        toast.classList.remove("translate-y-0", "opacity-100");
-      }, 3000);
-    }
-
-    function openSettingsModal() {
-      const modal = document.getElementById("settingsModal");
-      const input = document.getElementById("googleApiKeyInput");
-      if (input) input.value = userGoogleApiKey || "";
-      if (modal) modal.classList.remove("hidden");
-    }
-
-    function closeSettingsModal() {
-      const modal = document.getElementById("settingsModal");
-      if (modal) modal.classList.add("hidden");
-    }
-
-    function saveApiKeySetting() {
-      const input = document.getElementById("googleApiKeyInput");
-      userGoogleApiKey = (input?.value || "").trim();
-      try {
-        localStorage.setItem(GOOGLE_API_KEY, userGoogleApiKey);
-      } catch (e) {}
-      if (userGoogleApiKey) {
-        initGooglePlacesScript();
-      }
-      closeSettingsModal();
-      showToast(userGoogleApiKey ? "מפתח Google נשמר בהצלחה!" : "הגדרות נשמרו");
-    }
-
-    function initGooglePlacesScript() {
-      if (!userGoogleApiKey || window.google?.maps?.places) return;
-      const scriptId = "googleMapsPlacesScript";
-      if (document.getElementById(scriptId)) return;
-      const script = document.createElement("script");
-      script.id = scriptId;
-      script.src = `https://maps.googleapis.com/maps/api/js?key=${encodeURIComponent(userGoogleApiKey)}&libraries=places`;
-      script.async = true;
-      document.head.appendChild(script);
-    }
-
-    function normalizeSearchQuery(text) {
-      if (!text) return "";
-      return text
-        .toLowerCase()
-        .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
-        .replace(/\bim\b\.?/g, "")
-        .replace(/\bw\s+podgorzu\b/g, "")
-        .replace(/\bkrakow\b/g, "")
-        .replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g, " ")
-        .replace(/\s+/g, " ")
-        .trim();
-    }
-
-    function fetchLiveGoogleSuggestions(query, city) {
-      return new Promise((resolve) => {
-        const fullQuery = city ? `${query} ${city}` : query;
-        const cbName = `googleSuggestCb_${Date.now()}_${Math.floor(Math.random() * 10000)}`;
-        const script = document.createElement("script");
-        let resolved = false;
-
-        const timer = setTimeout(() => {
-          if (!resolved) {
-            resolved = true;
-            cleanup();
-            resolve([]);
-          }
-        }, 1100);
-
-        function cleanup() {
-          try { delete window[cbName]; } catch (e) { window[cbName] = undefined; }
-          if (script.parentNode) script.parentNode.removeChild(script);
-          clearTimeout(timer);
-        }
-
-        window[cbName] = function(data) {
-          if (resolved) return;
-          resolved = true;
-          cleanup();
-          if (data && Array.isArray(data[1])) {
-            const list = data[1].slice(0, 5).map(item => {
-              const text = typeof item === "string" ? item : (item[0] || "");
-              const cleanedText = text.replace(new RegExp(`\\s+${city}$`, "i"), "");
-              return {
-                title: cleanedText,
-                subtitle: `הצעת חיפוש Google • ${city}`,
-                type: inferCategoryFromText(cleanedText),
-                source: "google"
-              };
-            }).filter(item => item.title.trim().length > 0);
-            resolve(list);
-          } else {
-            resolve([]);
-          }
-        };
-
-        script.src = `https://suggestqueries.google.com/complete/search?client=firefox&q=${encodeURIComponent(fullQuery)}&callback=${cbName}`;
-        script.onerror = () => {
-          if (!resolved) {
-            resolved = true;
-            cleanup();
-            resolve([]);
-          }
-        };
-        document.body.appendChild(script);
-      });
-    }
-
-    function fetchGooglePlacesPredictions(query, hotel) {
-      return new Promise((resolve) => {
-        if (!window.google?.maps?.places?.AutocompleteService) return resolve([]);
-        try {
-          const service = new google.maps.places.AutocompleteService();
-          const req = {
-            input: query,
-            locationBias: {
-              radius: 20000,
-              center: { lat: hotel.lat, lng: hotel.lng }
-            }
-          };
-          service.getPlacePredictions(req, (predictions, status) => {
-            if (status === google.maps.places.PlacesServiceStatus.OK && predictions) {
-              const items = predictions.slice(0, 4).map(p => ({
-                title: p.structured_formatting?.main_text || p.description,
-                subtitle: p.structured_formatting?.secondary_text || "Google Place",
-                type: inferCategoryFromText(p.description),
-                source: "google-places"
-              }));
-              resolve(items);
-            } else {
-              resolve([]);
-            }
-          });
-        } catch (e) {
-          resolve([]);
-        }
-      });
-    }
-
-    function inferCategoryFromText(text) {
-      const lower = text.toLowerCase();
-      if (lower.includes("restaurant") || lower.includes("restauracja") || lower.includes("pizza") || lower.includes("bistro") || lower.includes("diner") || lower.includes("food") || lower.includes("burger") || lower.includes("מסעד")) return "restaurant";
-      if (lower.includes("cafe") || lower.includes("kawiarnia") || lower.includes("coffee") || lower.includes("bakery") || lower.includes("cukiernia") || lower.includes("קפה") || lower.includes("מאפ")) return "cafe";
-      if (lower.includes("museum") || lower.includes("muzeum") || lower.includes("gallery") || lower.includes("exhibition") || lower.includes("attractions") || lower.includes("מוזיאון") || lower.includes("גלרי")) return "museum";
-      if (lower.includes("park") || lower.includes("garden") || lower.includes("ogrod") || lower.includes("kopiec") || lower.includes("mound") || lower.includes("forest") || lower.includes("hike") || lower.includes("פארק") || lower.includes("גן")) return "park";
-      if (lower.includes("mall") || lower.includes("galeria") || lower.includes("shop") || lower.includes("market") || lower.includes("sukiennice") || lower.includes("targ") || lower.includes("קניון") || lower.includes("שוק")) return "shopping";
-      return "sightseeing";
-    }
-
-    async function fetchAutocompleteSuggestions(query) {
-      if (!query || query.trim().length < 2) return [];
-      const clean = query.trim().toLowerCase();
-      const hotel = PRESET_HOTELS[selectedHotelIdx];
-      const results = [];
-      const seen = new Set();
-
-      function addResult(item) {
-        const key = item.title.toLowerCase().trim();
-        if (!seen.has(key)) {
-          seen.add(key);
-          results.push(item);
-        }
-      }
-
-      for (const [name, coords] of Object.entries(KNOWN_VENUES)) {
-        if (name.includes(clean) || clean.includes(name)) {
-          const capitalized = name.split(" ").map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(" ");
-          addResult({
-            title: capitalized,
-            subtitle: `מיקום מאומת • ${hotel.city}`,
-            coords: coords,
-            type: inferCategoryFromText(name),
-            source: "verified"
-          });
-        }
-        if (results.length >= 2) break;
-      }
-
-      if (userGoogleApiKey && window.google?.maps?.places) {
-        const places = await fetchGooglePlacesPredictions(query, hotel);
-        places.forEach(addResult);
-      }
-
-      const googleSuggestions = await fetchLiveGoogleSuggestions(query, hotel.city);
-      googleSuggestions.forEach(addResult);
-
-      try {
-        const photonUrl = `https://photon.komoot.io/api/?q=${encodeURIComponent(query)}&lat=${hotel.lat}&lon=${hotel.lng}&limit=4`;
-        const pRes = await fetch(photonUrl);
-        if (pRes.ok) {
-          const pData = await pRes.json();
-          if (pData?.features) {
-            pData.features.forEach(f => {
-              const name = f.properties.name;
-              if (name && !seen.has(name.toLowerCase())) {
-                const street = f.properties.street ? `${f.properties.street}, ` : "";
-                const city = f.properties.city || hotel.city;
-                const [lon, lat] = f.geometry.coordinates;
-                addResult({
-                  title: name,
-                  subtitle: `${street}${city}`,
-                  coords: { lat: parseFloat(lat), lng: parseFloat(lon) },
-                  type: inferCategoryFromText(name + " " + (f.properties.osm_value || "")),
-                  source: "osm"
-                });
-              }
-            });
-          }
-        }
-      } catch (e) {}
-
-      return results.slice(0, 6);
-    }
-
-    async function showAutocompleteDropdown(idx, query) {
-      const dropdown = document.getElementById(`autocompleteDropdown_${idx}`);
-      if (!dropdown) return;
-
-      if (!query || query.trim().length < 2) {
-        dropdown.classList.add("hidden");
-        dropdown.innerHTML = "";
-        return;
-      }
-
-      const suggestions = await fetchAutocompleteSuggestions(query);
-      if (suggestions.length === 0) {
-        dropdown.classList.add("hidden");
-        dropdown.innerHTML = "";
-        return;
-      }
-
-      dropdown.innerHTML = "";
-      suggestions.forEach(item => {
-        const row = document.createElement("div");
-        row.className = "px-3 py-2 hover:bg-blue-50 cursor-pointer flex items-center justify-between gap-2 border-b border-slate-100 last:border-0 transition";
-        
-        let iconBadge = `<i class="fa-solid fa-location-dot text-emerald-600 text-xs"></i>`;
-        let sourceBadge = `<span class="text-[9px] font-bold text-slate-400 uppercase">מפה</span>`;
-        
-        if (item.source === "google" || item.source === "google-places") {
-          iconBadge = `<i class="fa-brands fa-google text-blue-500 text-xs"></i>`;
-          sourceBadge = `<span class="text-[9px] font-bold text-blue-600 bg-blue-50 px-1.5 py-0.5 rounded">Google</span>`;
-        }
-
-        row.innerHTML = `
-          <div class="flex items-center gap-2 overflow-hidden">
-            <span class="w-6 h-6 rounded-lg bg-slate-100 flex items-center justify-center shrink-0">
-              ${iconBadge}
-            </span>
-            <div class="truncate">
-              <div class="text-xs font-bold text-slate-800 truncate">${item.title}</div>
-              <div class="text-[10px] text-slate-400 truncate">${item.subtitle}</div>
+        <div class="summary-dashboard">
+            <div class="kpi-card">
+                <div class="kpi-val" id="res-total-time">0 שעות</div>
+                <div class="kpi-label">זמן כולל משוער</div>
             </div>
-          </div>
-          ${sourceBadge}
-        `;
-
-        row.onmousedown = (e) => {
-          e.preventDefault();
-          onSelectAutocomplete(idx, item);
-        };
-        dropdown.appendChild(row);
-      });
-
-      dropdown.classList.remove("hidden");
-    }
-
-    function onSelectAutocomplete(idx, item) {
-      if (!activities[idx]) return;
-      activities[idx].name = item.title;
-      if (item.type && CATEGORIES[item.type]) {
-        activities[idx].type = item.type;
-      }
-      if (item.coords) {
-        geocodeCache[item.title.toLowerCase()] = item.coords;
-      }
-      const input = document.getElementById(`actNameInput_${idx}`);
-      if (input) input.value = item.title;
-      
-      hideAutocompleteDropdown(idx);
-      saveState();
-      renderItinerary();
-    }
-
-    function hideAutocompleteDropdown(idx) {
-      setTimeout(() => {
-        const dropdown = document.getElementById(`autocompleteDropdown_${idx}`);
-        if (dropdown) dropdown.classList.add("hidden");
-      }, 250);
-    }
-
-    function updateDynamicLinks(idx) {
-      const linksRow = document.getElementById(`linksRow_${idx}`);
-      if (!linksRow || !activities[idx]) return;
-      const hotel = PRESET_HOTELS[selectedHotelIdx];
-      const act = activities[idx];
-      const name = (act.name || "").trim();
-
-      if (!name) {
-        linksRow.innerHTML = `<span class="text-[11px] text-slate-400 italic">הקלד שם יעד לקבלת קישורי Google</span>`;
-        return;
-      }
-
-      const fullSearch = `${name}, ${hotel.city}`;
-      linksRow.innerHTML = `
-        <a href="${getSearchUrl(fullSearch)}" target="_blank" rel="noopener" class="text-blue-600 hover:text-blue-800 font-semibold flex items-center gap-1">
-          <i class="fa-brands fa-google text-[11px]"></i> מידע בגוגל
-        </a>
-        <span class="text-slate-300">•</span>
-        <a href="${getMapUrl(fullSearch)}" target="_blank" rel="noopener" class="text-emerald-600 hover:text-emerald-800 font-semibold flex items-center gap-1">
-          <i class="fa-solid fa-location-dot text-[11px]"></i> מיקום במפה
-        </a>
-      `;
-    }
-
-    function setManualDistance(legKey) {
-      const current = calculatedDistances[legKey] !== undefined ? calculatedDistances[legKey].toFixed(2) : "1.00";
-      const customVal = prompt("הזן מרחק הליכה מדויק בק״מ (לדוגמה 0.45 או 2.7):", current);
-      if (customVal !== null) {
-        const parsed = parseFloat(customVal);
-        if (!isNaN(parsed) && parsed >= 0) {
-          calculatedDistances[legKey] = parsed;
-          saveState();
-          renderItinerary();
-          renderSummaryBanner();
-          showToast(`מרחק עודכן בהצלחה ל-${parsed} ק״מ`);
-        }
-      }
-    }
-
-    function selectHotel(idx) {
-      selectedHotelIdx = idx;
-      calculatedDistances = {};
-      saveState();
-      renderHotelCards();
-      renderItinerary();
-      renderSummaryBanner();
-      showToast(`המלון הוגדר כ-${PRESET_HOTELS[idx].shortTitle}`);
-    }
-
-    function setPermanentDefault(idx) {
-      permanentDefaultIdx = idx;
-      selectedHotelIdx = idx;
-      try {
-        localStorage.setItem(DEFAULT_HOTEL_KEY, idx.toString());
-      } catch (e) {}
-      renderHotelCards();
-      renderItinerary();
-      showToast(`⭐ ${PRESET_HOTELS[idx].shortTitle} הוגדר כברירת מחדל קבועה!`);
-    }
-
-    function toggleMobileHotelsExpand() {
-      isMobileHotelsExpanded = !isMobileHotelsExpanded;
-      renderHotelCards();
-    }
-
-    function renderHotelCards() {
-      const container = document.getElementById("hotelCardsContainer");
-      if (!container) return;
-      container.innerHTML = "";
-
-      PRESET_HOTELS.forEach((h, idx) => {
-        const isSelected = idx === selectedHotelIdx;
-        const isDefault = idx === permanentDefaultIdx;
-
-        // In mobile: if not selected and not expanded, hide with 'hidden sm:flex'
-        let mobileVisibilityClass = "flex";
-        if (!isSelected && !isMobileHotelsExpanded) {
-          mobileVisibilityClass = "hidden sm:flex";
-        }
-
-        const card = document.createElement("div");
-        card.className = `${mobileVisibilityClass} p-3 rounded-2xl border transition-all cursor-pointer relative flex-col justify-between ${
-          isSelected
-            ? "border-blue-600 bg-blue-50/70 shadow-xs ring-1 ring-blue-500"
-            : "border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50/50"
-        }`;
-        card.onclick = () => selectHotel(idx);
-
-        card.innerHTML = `
-          <div>
-            <div class="flex items-center justify-between gap-1 mb-1">
-              <span class="text-[11px] font-extrabold tracking-wide ${isSelected ? 'text-blue-700' : 'text-slate-500'}">
-                ${h.shortTitle}
-              </span>
-              ${isDefault ? '<span class="text-[9px] font-bold bg-amber-100 text-amber-800 px-1.5 py-0.5 rounded-md flex items-center gap-1"><i class="fa-solid fa-star text-amber-500 text-[8px]"></i> ברירת מחדל</span>' : ''}
+            <div class="kpi-card">
+                <div class="kpi-val" id="res-total-walk">0 ק"מ</div>
+                <div class="kpi-label">מרחק תנועה כולל</div>
             </div>
-            <h4 class="text-xs font-bold text-slate-900 leading-tight mb-1 truncate">${h.name}</h4>
-            <p class="text-[11px] text-slate-500 line-clamp-2 mb-2">${h.address}</p>
-          </div>
-          <div class="flex items-center justify-between pt-2 border-t border-slate-100 text-[11px]">
-            <a href="${getMapUrl(h.address)}" target="_blank" rel="noopener" onclick="event.stopPropagation()" class="text-blue-600 hover:underline flex items-center gap-1 font-semibold">
-              <i class="fa-solid fa-location-dot"></i> מפה
-            </a>
-            ${!isDefault ? `<button onclick="event.stopPropagation(); setPermanentDefault(${idx});" class="text-slate-400 hover:text-amber-600 font-semibold hover:underline text-[10px]">קבע כברירת מחדל</button>` : '<span class="text-emerald-700 font-semibold text-[10px]">פעיל כברירת מחדל</span>'}
-          </div>
-        `;
-        container.appendChild(card);
-      });
+            <div class="kpi-card">
+                <div class="kpi-val" id="res-transit-time">0 דק'</div>
+                <div class="kpi-label">זמן מעברים והליכה</div>
+            </div>
+        </div>
 
-      // Update mobile toggle button text & icon
-      const expandBtnText = document.getElementById("mobileHotelExpandText");
-      const expandIcon = document.getElementById("mobileHotelExpandIcon");
-      if (expandBtnText && expandIcon) {
-        if (isMobileHotelsExpanded) {
-          expandBtnText.textContent = "הסתר מלונות נוספים";
-          expandIcon.className = "fa-solid fa-chevron-up text-slate-500 text-[10px]";
-        } else {
-          expandBtnText.textContent = "החלף מלון (מלון 2 / מלון 3)";
-          expandIcon.className = "fa-solid fa-chevron-down text-slate-500 text-[10px]";
-        }
-      }
+        <div class="flow-timeline" id="flowTimeline"></div>
+
+        <button class="btn-maps-nav" onclick="openInGoogleMaps()">
+            🗺️ פתח מסלול ניווט זה ב-Google Maps (אופציונלי)
+        </button>
+    </div>
+</div>
+
+<!-- מודאל קטלוג -->
+<div class="modal" id="catalogModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>בחר אטרקציה מהקטלוג (38 אפשרויות מאומתות)</h3>
+            <button class="close-btn" onclick="closeModal()">&times;</button>
+        </div>
+        <div class="modal-reference-bar" id="modalRefText"></div>
+        <div class="category-tabs" id="categoryTabs"></div>
+        <div id="catalogList"></div>
+    </div>
+</div>
+
+<div class="toast" id="toast">הקישור הועתק ללוח!</div>
+
+<script>
+const HOME_BASE = {
+    name: "Sleeping in Krakow Main Market",
+    lat: 50.0617,
+    lng: 19.9373
+};
+
+// 38 האטרקציות והמסעדות מקובץ האקסל המאומת
+const ATTRACTIONS_CATALOG = [
+  {
+    "id": "womai",
+    "category": "Science & Senses",
+    "categoryHeb": "מדע וחושים",
+    "nameEn": "WOMAI Sensory Centre",
+    "descHeb": "מרכז חושים אינטראקטיבי; חוויית החושך מתאימה יותר לילדים גדולים, מומלץ לבדוק את סוג התערוכה מראש.",
+    "googleRating": 5.0,
+    "googleReviewCount": "5.4K+",
+    "location": "Pawia 34, Kraków",
+    "lat": 50.069,
+    "lng": 19.945,
+    "distanceFromHotelKm": 1.0,
+    "familyCost": "160–200 zł",
+    "costType": "Estimated family 2+2",
+    "stayHours": 1.5,
+    "defaultNote": "לבדוק התאמה לגיל הילדים",
+    "officialUrl": "https://womai.pl/",
+    "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=WOMAI+Sensory+Centre+Krakow"
+  },
+  {
+    "id": "lem_garden",
+    "category": "Science & Senses",
+    "categoryHeb": "מדע וחושים",
+    "nameEn": "Stanislaw Lem Garden of Experiences",
+    "descHeb": "פארק מדעי פתוח עם מתקני פיזיקה וניסויים; בחירה מצוינת ביום שמש.",
+    "googleRating": 4.6,
+    "googleReviewCount": "",
+    "location": "al. Pokoju 68, Kraków",
+    "lat": 50.0675,
+    "lng": 20.0047,
+    "distanceFromHotelKm": 4.9,
+    "familyCost": "70–90 zł",
+    "costType": "Estimated family 2+2",
+    "stayHours": 2.5,
+    "defaultNote": "עדיף במזג אוויר יבש",
+    "officialUrl": "https://www.ogroddoswiadczen.pl/",
+    "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=Stanislaw+Lem+Garden+of+Experiences+Krakow"
+  },
+  {
+    "id": "mit",
+    "category": "Science & Senses",
+    "categoryHeb": "מדע וחושים",
+    "nameEn": "Museum of Engineering and Technology",
+    "descHeb": "מוזיאון בקז'ימייז' עם מכונות, תחבורה וטכנולוגיה ואזורים אינטראקטיביים לילדים.",
+    "googleRating": 4.6,
+    "googleReviewCount": "",
+    "location": "św. Wawrzyńca 15, Kraków",
+    "lat": 50.0507,
+    "lng": 19.9468,
+    "distanceFromHotelKm": 1.4,
+    "familyCost": "95 zł",
+    "costType": "Family ticket estimate",
+    "stayHours": 2.0,
+    "defaultNote": "מתאים לשילוב עם קז'ימייז'",
+    "officialUrl": "https://mit.krakow.pl/",
+    "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=Museum+of+Engineering+and+Technology+Krakow"
+  },
+  {
+    "id": "arcade_museum",
+    "category": "Games & Fun",
+    "categoryHeb": "משחקים ואקשן",
+    "nameEn": "Krakow Arcade Museum",
+    "descHeb": "מעל 150 מכונות ארקייד רטרו למשחק חופשי בכרטיס אחד; חוויה מושלמת לכל המשפחה.",
+    "googleRating": 4.9,
+    "googleReviewCount": "3.3K+",
+    "location": "Centralna 41a, Kraków",
+    "lat": 50.0631,
+    "lng": 20.0076,
+    "distanceFromHotelKm": 5.0,
+    "familyCost": "170 zł",
+    "costType": "Family 2+2",
+    "stayHours": 2.5,
+    "defaultNote": "מושלם לשעות אחה\"צ או יום גשום",
+    "officialUrl": "https://krakowarcademuseum.com/",
+    "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=Krakow+Arcade+Museum"
+  },
+  {
+    "id": "pinball_museum",
+    "category": "Games & Fun",
+    "categoryHeb": "משחקים ואקשן",
+    "nameEn": "Krakow Pinball Museum",
+    "descHeb": "עשרות מכונות פליפר ומשחקי רטרו במרכז העיר; מיקום נוח מאוד ומשחק חופשי.",
+    "googleRating": 4.8,
+    "googleReviewCount": "",
+    "location": "Stradomska 15, Kraków",
+    "lat": 50.0545,
+    "lng": 19.9398,
+    "distanceFromHotelKm": 0.8,
+    "familyCost": "140–160 zł",
+    "costType": "Estimated family 2+2",
+    "stayHours": 1.5,
+    "defaultNote": "קרוב מאוד לטירת ואוול ולמלון",
+    "officialUrl": "https://krakowpinball.com/",
+    "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=Krakow+Pinball+Museum"
+  },
+  {
+    "id": "laserpark",
+    "category": "Games & Fun",
+    "categoryHeb": "משחקים ואקשן",
+    "nameEn": "LaserPark Kraków",
+    "descHeb": "לייזר טאג ומבוך לייזר באווירה עתידנית; מתאים במיוחד לפריקת אנרגיה קבוצתית.",
+    "googleRating": 4.8,
+    "googleReviewCount": "",
+    "location": "Zabłocie 20/22, Kraków",
+    "lat": 50.0485,
+    "lng": 19.9634,
+    "distanceFromHotelKm": 2.4,
+    "familyCost": "120–180 zł",
+    "costType": "Per game / combo",
+    "stayHours": 1.5,
+    "defaultNote": "כדאי להזמין סבב מראש בסופ\"ש",
+    "officialUrl": "https://laserpark.pl/",
+    "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=LaserPark+Krakow"
+  },
+  {
+    "id": "gojump_sikorki",
+    "category": "Games & Fun",
+    "categoryHeb": "משחקים ואקשן",
+    "nameEn": "GOjump MEGAPARK (Sikorki)",
+    "descHeb": "פארק טרמפולינות ומתנפחים ענק עם מסלולי נינג'ה ובריכות ספוג; מעולה לילדים.",
+    "googleRating": 4.6,
+    "googleReviewCount": "4.4K+",
+    "location": "Sikorki 23, Kraków",
+    "lat": 50.0674,
+    "lng": 20.0245,
+    "distanceFromHotelKm": 6.3,
+    "familyCost": "160–220 zł",
+    "costType": "Hourly tickets",
+    "stayHours": 2.0,
+    "defaultNote": "חובה גרביים מונעות החלקה",
+    "officialUrl": "https://krakow.gojump.pl/",
+    "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=GOjump+MEGAPARK+Sikorki+Krakow"
+  },
+  {
+    "id": "wieliczka",
+    "category": "Must-See & Nature",
+    "categoryHeb": "טבע ואתרי חובה",
+    "nameEn": "Wieliczka Salt Mine",
+    "descHeb": "מכרות המלח המפורסמים - אולמות ענק מרהיבים, קפלת מלח תת-קרקעית ואגמים קסומים.",
+    "googleRating": 4.7,
+    "googleReviewCount": "130K+",
+    "location": "Daniłowicza 10, Wieliczka",
+    "lat": 49.9831,
+    "lng": 20.0557,
+    "distanceFromHotelKm": 12.4,
+    "familyCost": "380–430 zł",
+    "costType": "Family ticket (PL/EN guide)",
+    "stayHours": 3.0,
+    "defaultNote": "חובה להזמין שעה מראש; נעליים נוחות ועליונית",
+    "officialUrl": "https://www.wieliczka-saltmine.com/",
+    "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=Wieliczka+Salt+Mine"
+  },
+  {
+    "id": "wawel",
+    "category": "Must-See & Nature",
+    "categoryHeb": "טבע ואתרי חובה",
+    "nameEn": "Wawel Royal Castle & Grounds",
+    "descHeb": "טירת המלכים של קרקוב - חצרות יפהפיות, תצפית לנהר הוויסלה ופסל הדרקון היורק אש.",
+    "googleRating": 4.8,
+    "googleReviewCount": "",
+    "location": "Wawel 5, Kraków",
+    "lat": 50.054,
+    "lng": 19.9354,
+    "distanceFromHotelKm": 0.9,
+    "familyCost": "Free grounds / 80–140 zł exhibitions",
+    "costType": "Grounds free, exhibitions vary",
+    "stayHours": 2.0,
+    "defaultNote": "טיול רגלי קל מהמלון, הילדים יאהבו את הדרקון",
+    "officialUrl": "https://wawel.krakow.pl/",
+    "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=Wawel+Royal+Castle+Krakow"
+  },
+  {
+    "id": "krakow_zoo",
+    "category": "Must-See & Nature",
+    "categoryHeb": "טבע ואתרי חובה",
+    "nameEn": "Krakow Zoo",
+    "descHeb": "גן חיות נעים ומיוער ביער וולסקי; מתאים מאוד לטיול משפחתי רגוע בטבע.",
+    "googleRating": 4.4,
+    "googleReviewCount": "",
+    "location": "Kasy Oszczędności Miasta Krakowa 14, Kraków",
+    "lat": 50.0543,
+    "lng": 19.8536,
+    "distanceFromHotelKm": 6.0,
+    "familyCost": "120–140 zł",
+    "costType": "Estimated family 2+2",
+    "stayHours": 3.0,
+    "defaultNote": "יש עליות וירידות, כדאי עגלה לילדים קטנים",
+    "officialUrl": "https://zoo-krakow.pl/",
+    "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=Krakow+Zoo"
+  },
+  {
+    "id": "ojcow_park",
+    "category": "Must-See & Nature",
+    "categoryHeb": "טבע ואתרי חובה",
+    "nameEn": "Ojców National Park",
+    "descHeb": "הפארק הלאומי הקרוב לקרקוב עם תצורות סלע מיוחדות, מערות, טירות ומסלולי טבע קלים.",
+    "googleRating": 4.8,
+    "googleReviewCount": "",
+    "location": "Ojców, Małopolskie",
+    "lat": 50.2104,
+    "lng": 19.8317,
+    "distanceFromHotelKm": 18.2,
+    "familyCost": "Free entry / parking & caves extra",
+    "costType": "Park free, caves ~60 zł",
+    "stayHours": 3.5,
+    "defaultNote": "דורש רכב, טיול יום נהדר במזג אוויר טוב",
+    "officialUrl": "https://www.ojcowskiparknarodowy.pl/",
+    "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=Ojcow+National+Park"
+  },
+  {
+    "id": "krakus_mound",
+    "category": "Must-See & Nature",
+    "categoryHeb": "טבע ואתרי חובה",
+    "nameEn": "Krakus Mound (Kopiec Krakusa)",
+    "descHeb": "תל היסטורי עם תצפית פנורמית של 360 מעלות על כל העיר; נקודה נהדרת לפיקניק ושקיעה.",
+    "googleRating": 4.7,
+    "googleReviewCount": "",
+    "location": "Franciszkka Maryewskiego, Kraków",
+    "lat": 50.038,
+    "lng": 19.9583,
+    "distanceFromHotelKm": 3.0,
+    "familyCost": "Free",
+    "costType": "Free public access",
+    "stayHours": 1.0,
+    "defaultNote": "כדאי להגיע לקראת שקיעה ביום בהיר",
+    "officialUrl": "",
+    "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=Krakus+Mound+Krakow"
+  },
+  {
+    "id": "planty_park",
+    "category": "Must-See & Nature",
+    "categoryHeb": "טבע ואתרי חובה",
+    "nameEn": "Planty Park Ring",
+    "descHeb": "טבעת הגנים הירוקה המקיפה את העיר העתיקה; שבילים נעימים וגני שעשועים במרחק פסיעה מהמלון.",
+    "googleRating": 4.8,
+    "googleReviewCount": "",
+    "location": "Old Town ring, Kraków",
+    "lat": 50.063,
+    "lng": 19.94,
+    "distanceFromHotelKm": 0.2,
+    "familyCost": "Free",
+    "costType": "Free public park",
+    "stayHours": 1.0,
+    "defaultNote": "מצוין להפוגה קצרה עם הילדים בין פעילויות",
+    "officialUrl": "",
+    "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=Planty+Park+Krakow"
+  },
+  {
+    "id": "galeria_krakowska",
+    "category": "Shopping & Outlets",
+    "categoryHeb": "קניות ואאוטלט",
+    "nameEn": "Galeria Krakowska",
+    "descHeb": "קניון ענק ומודרני הצמוד לתחנת הרכבת המרכזית; מרחק הליכה קצר מהמלון עם כל המותגים.",
+    "googleRating": 4.5,
+    "googleReviewCount": "70K+",
+    "location": "Pawia 5, Kraków",
+    "lat": 50.067,
+    "lng": 19.9458,
+    "distanceFromHotelKm": 0.8,
+    "familyCost": "Free entry",
+    "costType": "Mall entry free",
+    "stayHours": 2.5,
+    "defaultNote": "הכי נוח ונגיש ברגל מהעיר העתיקה",
+    "officialUrl": "https://www.galeriakrakowska.pl/",
+    "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=Galeria+Krakowska"
+  },
+  {
+    "id": "galeria_kazimierz",
+    "category": "Shopping & Outlets",
+    "categoryHeb": "קניות ואאוטלט",
+    "nameEn": "Galeria Kazimierz",
+    "descHeb": "קניון נעים ומרווח ברובע היהודי עם קולנוע, חנויות אופנה ומתחם אוכל רגוע.",
+    "googleRating": 4.4,
+    "googleReviewCount": "",
+    "location": "Podgórska 34, Kraków",
+    "lat": 50.0531,
+    "lng": 19.9575,
+    "distanceFromHotelKm": 1.7,
+    "familyCost": "Free entry",
+    "costType": "Mall entry free",
+    "stayHours": 2.0,
+    "defaultNote": "משתלב נהדר עם ביקור ברובע קז'ימייז'",
+    "officialUrl": "https://galeriakazimierz.com.pl/",
+    "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=Galeria+Kazimierz+Krakow"
+  },
+  {
+    "id": "bonarka",
+    "category": "Shopping & Outlets",
+    "categoryHeb": "קניות ואאוטלט",
+    "nameEn": "Bonarka City Center",
+    "descHeb": "אחד הקניונים הגדולים ביותר בקרקוב; מגוון חנויות ענק, פריימרק ומתחמי שעשועים.",
+    "googleRating": 4.5,
+    "googleReviewCount": "",
+    "location": "Kamieńskiego 11, Kraków",
+    "lat": 50.0275,
+    "lng": 19.9535,
+    "distanceFromHotelKm": 4.0,
+    "familyCost": "Free entry",
+    "costType": "Mall entry free",
+    "stayHours": 3.0,
+    "defaultNote": "מתאים לחצי יום קניות רציני (מונית/אובר)",
+    "officialUrl": "https://www.bonarkacitycenter.pl/",
+    "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=Bonarka+City+Center+Krakow"
+  },
+  {
+    "id": "serenada",
+    "category": "Shopping & Outlets",
+    "categoryHeb": "קניות ואאוטלט",
+    "nameEn": "Centrum Serenada",
+    "descHeb": "קניון מודרני בצפון העיר הצמוד לפארק המים (Park Wodny); שילוב מצוין לבילוי וקניות.",
+    "googleRating": 4.5,
+    "googleReviewCount": "",
+    "location": "al. Bora-Komorowskiego 41, Kraków",
+    "lat": 50.089,
+    "lng": 19.9839,
+    "distanceFromHotelKm": 4.5,
+    "familyCost": "Free entry",
+    "costType": "Mall entry free",
+    "stayHours": 2.0,
+    "defaultNote": "צמוד לפארק המים המקורה",
+    "officialUrl": "https://centrumserenada.pl/",
+    "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=Centrum+Serenada+Krakow"
+  },
+  {
+    "id": "factory_outlet",
+    "category": "Shopping & Outlets",
+    "categoryHeb": "קניות ואאוטלט",
+    "nameEn": "Factory Krakow Outlet",
+    "descHeb": "מתחם האאוטלט המוביל של קרקוב עם מותגי אופנה וספורט בהנחות קבועות.",
+    "googleRating": 4.3,
+    "googleReviewCount": "19K+",
+    "location": "Prof. Adama Rożańskiego 32, Modlniczka",
+    "lat": 50.1042,
+    "lng": 19.8431,
+    "distanceFromHotelKm": 8.3,
+    "familyCost": "Free entry",
+    "costType": "Outlet entry free",
+    "stayHours": 2.5,
+    "defaultNote": "מחוץ לעיר, מומלץ להגיע ברכב או מונית",
+    "officialUrl": "https://krakow.factory.pl/",
+    "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=Factory+Krakow+Outlet"
+  },
+  {
+    "id": "sukiennice",
+    "category": "Shopping & Outlets",
+    "categoryHeb": "קניות ואאוטלט",
+    "nameEn": "Sukiennice (Cloth Hall)",
+    "descHeb": "אולם הבדים ההיסטורי בלב הכיכר המרכזית; שוק מזכרות, תכשיטי ענבר ועבודות יד.",
+    "googleRating": 4.7,
+    "googleReviewCount": "",
+    "location": "Rynek Główny 1/3, Kraków",
+    "lat": 50.0617,
+    "lng": 19.9373,
+    "distanceFromHotelKm": 0.0,
+    "familyCost": "Free entry to stalls",
+    "costType": "Market walk free",
+    "stayHours": 0.5,
+    "defaultNote": "ממש מתחת למלון, מעולה לקניית מזכרות קטנות",
+    "officialUrl": "",
+    "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=Sukiennice+Cloth+Hall+Krakow"
+  },
+  {
+    "id": "fikołki_bonarka",
+    "category": "Indoor Playgrounds",
+    "categoryHeb": "משחקיות וטרמפולינות",
+    "nameEn": "Fikołki Sala Zabaw (Bonarka)",
+    "descHeb": "משחקיית ענק מושקעת לילדים עם מבוכי טיפוס, מגלשות וקירות טיפוס בתוך קניון בונארקה.",
+    "googleRating": 4.6,
+    "googleReviewCount": "",
+    "location": "Bonarka City Center, Kraków",
+    "lat": 50.0275,
+    "lng": 19.9535,
+    "distanceFromHotelKm": 4.0,
+    "familyCost": "70–120 zł",
+    "costType": "Per child pass",
+    "stayHours": 2.0,
+    "defaultNote": "ההורים יכולים לשתות קפה בזמן שהילדים משחקים",
+    "officialUrl": "https://fikolki.pl/",
+    "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=Fikolki+Bonarka+Krakow"
+  },
+  {
+    "id": "animatria",
+    "category": "Indoor Playgrounds",
+    "categoryHeb": "משחקיות וטרמפולינות",
+    "nameEn": "Animatria Sala Zabaw",
+    "descHeb": "משחקייה איכותית ונעימה עם פינות משחק מגוונות ופעילויות מותאמות לגילאי 3 עד 8.",
+    "googleRating": 4.7,
+    "googleReviewCount": "",
+    "location": "Kraków",
+    "lat": 50.045,
+    "lng": 19.97,
+    "distanceFromHotelKm": 3.0,
+    "familyCost": "50–80 zł",
+    "costType": "Hourly tickets",
+    "stayHours": 1.5,
+    "defaultNote": "מעולה לקטנטנים",
+    "officialUrl": "",
+    "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=Animatria+Sala+Zabaw+Krakow"
+  },
+  {
+    "id": "park_wodny",
+    "category": "Indoor Playgrounds",
+    "categoryHeb": "משחקיות וטרמפולינות",
+    "nameEn": "Park Wodny Kraków (Water Park)",
+    "descHeb": "פארק מים מקורה מהגדולים בפולין עם מגלשות ענק, בריכות זרמים ומתחם ייעודי לפעוטות.",
+    "googleRating": 4.4,
+    "googleReviewCount": "",
+    "location": "Dobrego Pasterza 126, Kraków",
+    "lat": 50.0898,
+    "lng": 19.9823,
+    "distanceFromHotelKm": 4.5,
+    "familyCost": "160–220 zł",
+    "costType": "Family 2+2 (2-3 hours)",
+    "stayHours": 2.5,
+    "defaultNote": "להביא בגדי ים, מגבות וכפכפים",
+    "officialUrl": "https://www.parkwodny.pl/",
+    "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=Park+Wodny+Krakow"
+  },
+  {
+    "id": "hop_la_play",
+    "category": "Indoor Playgrounds",
+    "categoryHeb": "משחקיות וטרמפולינות",
+    "nameEn": "Klockoland / Lego Experience Center",
+    "descHeb": "מרכז אינטראקטיבי של בנייה, רובוטיקה ומשחק בלבני לגו; מפתח יצירתיות וחשיבה.",
+    "googleRating": 4.5,
+    "googleReviewCount": "",
+    "location": "Mikołajska 13, Kraków",
+    "lat": 50.0612,
+    "lng": 19.9415,
+    "distanceFromHotelKm": 0.3,
+    "familyCost": "80–110 zł",
+    "costType": "Estimated family 2+2",
+    "stayHours": 1.5,
+    "defaultNote": "מרחק 3 דקות הליכה מהמלון",
+    "officialUrl": "",
+    "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=Klockoland+Krakow"
+  },
+  {
+    "id": "goair_airpark",
+    "category": "Indoor Playgrounds",
+    "categoryHeb": "משחקיות וטרמפולינות",
+    "nameEn": "GOair Powietrzny Miasto",
+    "descHeb": "עיר מתנפחים מקורה ענקית עם מסלולי מכשולים ומגלשות ענק; צמוד ל-GOjump.",
+    "googleRating": 4.6,
+    "googleReviewCount": "",
+    "location": "Sikorki 23, Kraków",
+    "lat": 50.0674,
+    "lng": 20.0245,
+    "distanceFromHotelKm": 6.3,
+    "familyCost": "150–200 zł",
+    "costType": "Inflatable park passes",
+    "stayHours": 2.0,
+    "defaultNote": "כרטיס משולב אפשרי עם GOjump",
+    "officialUrl": "https://krakow.goair.com.pl/",
+    "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=GOair+Powietrzne+Miasto+Krakow"
+  },
+  {
+    "id": "pod_wawelem",
+    "category": "Family Food",
+    "categoryHeb": "מסעדות משפחתיות",
+    "nameEn": "Pod Wawelem Kompania Kuflowa",
+    "descHeb": "מסעדה פולנית מפורסמת ושמחה מול ואוול עם מנות ענקיות, תפריט ילדים ואווירה נהדרת.",
+    "googleRating": 4.6,
+    "googleReviewCount": "22K+",
+    "location": "św. Gertrudy 26-29, Kraków",
+    "lat": 50.0547,
+    "lng": 19.9392,
+    "distanceFromHotelKm": 0.8,
+    "familyCost": "160–240 zł",
+    "costType": "Family meal 2+2",
+    "stayHours": 1.5,
+    "defaultNote": "מנות ענקיות לחלוקה בין המשפחות",
+    "officialUrl": "https://podwawelem.eu/",
+    "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=Pod+Wawelem+Kompania+Kuflowa+Krakow"
+  },
+  {
+    "id": "morskie_oko",
+    "category": "Family Food",
+    "categoryHeb": "מסעדות משפחתיות",
+    "nameEn": "Restauracja Morskie Oko",
+    "descHeb": "מסעדה בעיצוב בקתת עץ הררית היישר מזקופנה; מוזיקה חיה עממית ואוכל פולני מסורתי.",
+    "googleRating": 4.6,
+    "googleReviewCount": "",
+    "location": "Szczepański 8, Kraków",
+    "lat": 50.0633,
+    "lng": 19.9362,
+    "distanceFromHotelKm": 0.2,
+    "familyCost": "180–260 zł",
+    "costType": "Family meal 2+2",
+    "stayHours": 1.5,
+    "defaultNote": "מרחק 2 דקות הליכה מהמלון",
+    "officialUrl": "https://morskieoko.krakow.pl/",
+    "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=Restauracja+Morskie+Oko+Krakow"
+  },
+  {
+    "id": "chlopskie_jadlo",
+    "category": "Family Food",
+    "categoryHeb": "מסעדות משפחתיות",
+    "nameEn": "Chłopskie Jadło Kraków",
+    "descHeb": "אוכל פולני כפרי וחמים - פירוגי מגוונים, מרקי חורף ומנות מסורתיות שילדים אוהבים.",
+    "googleRating": 4.4,
+    "googleReviewCount": "",
+    "location": "Grodzka 9, Kraków",
+    "lat": 50.0589,
+    "lng": 19.938,
+    "distanceFromHotelKm": 0.3,
+    "familyCost": "140–200 zł",
+    "costType": "Family meal 2+2",
+    "stayHours": 1.5,
+    "defaultNote": "קרוב מאוד לכיכר המרכזית",
+    "officialUrl": "https://chlopskiejadlo.pl/",
+    "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=Chlopskie+Jadlo+Grodzka+Krakow"
+  },
+  {
+    "id": "ck_browar",
+    "category": "Family Food",
+    "categoryHeb": "מסעדות משפחתיות",
+    "nameEn": "CK Browar",
+    "descHeb": "מסעדת מרתף גדולה ומרווחת בסגנון אוסטרו-הונגרי עם מנות בשר עשירות ואווירה שמחה.",
+    "googleRating": 4.4,
+    "googleReviewCount": "",
+    "location": "Podwale 6-7, Kraków",
+    "lat": 50.0636,
+    "lng": 19.9329,
+    "distanceFromHotelKm": 0.4,
+    "familyCost": "170–250 zł",
+    "costType": "Family meal 2+2",
+    "stayHours": 1.5,
+    "defaultNote": "מתאימה מאוד לקבוצות גדולות",
+    "officialUrl": "https://ckbrowar.pl/",
+    "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=CK+Browar+Krakow"
+  },
+  {
+    "id": "pizza_garden",
+    "category": "Casual & Pizza",
+    "categoryHeb": "קז'ואל ופיצה",
+    "nameEn": "Pizza Garden",
+    "descHeb": "פיצה נאפוליטנית אמיתית עם בצק אוורירי ומרכיבים איטלקיים מעולים; מושלם לארוחה עם ילדים.",
+    "googleRating": 4.7,
+    "googleReviewCount": "",
+    "location": "Rakowicka 1, Kraków",
+    "lat": 50.0673,
+    "lng": 19.9485,
+    "distanceFromHotelKm": 1.0,
+    "familyCost": "100–150 zł",
+    "costType": "Pizzas for family",
+    "stayHours": 1.0,
+    "defaultNote": "פתרון קל וטעים שכולם אוהבים",
+    "officialUrl": "",
+    "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=Pizza+Garden+Rakowicka+Krakow"
+  },
+  {
+    "id": "ti_amo_ti",
+    "category": "Casual & Pizza",
+    "categoryHeb": "קז'ואל ופיצה",
+    "nameEn": "Pizzeria Ti Amo Ti",
+    "descHeb": "פיצרייה איטלקית אותנטית וקטנה עם פיצות דקות וטריות מהתנור במחירים נוחים.",
+    "googleRating": 4.7,
+    "googleReviewCount": "",
+    "location": "Karmelicka 10, Kraków",
+    "lat": 50.0655,
+    "lng": 19.9324,
+    "distanceFromHotelKm": 0.5,
+    "familyCost": "90–140 zł",
+    "costType": "Pizzas for family",
+    "stayHours": 1.0,
+    "defaultNote": "מרחק קצר ברגל מחוץ לחומות העיר",
+    "officialUrl": "",
+    "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=Pizzeria+Ti+Amo+Ti+Krakow"
+  },
+  {
+    "id": "moa_burger",
+    "category": "Casual & Burgers",
+    "categoryHeb": "קז'ואל והמבורגרים",
+    "nameEn": "MoaBurger Kraków",
+    "descHeb": "המבורגרים בסגנון ניו-זילנדי עם קציצות איכותיות ומנות צ'יפס גדולות שילדים מחסלים.",
+    "googleRating": 4.6,
+    "googleReviewCount": "",
+    "location": "Mikołajska 3, Kraków",
+    "lat": 50.0609,
+    "lng": 19.9403,
+    "distanceFromHotelKm": 0.2,
+    "familyCost": "110–160 zł",
+    "costType": "Burgers & fries for family",
+    "stayHours": 1.0,
+    "defaultNote": "3 דקות הליכה מהמלון, שירות מהיר",
+    "officialUrl": "https://moaburger.com/",
+    "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=MoaBurger+Mikolajska+Krakow"
+  },
+  {
+    "id": "good_lood",
+    "category": "Ice Cream",
+    "categoryHeb": "גלידה",
+    "nameEn": "Good Lood (Main Square / Kazimierz)",
+    "descHeb": "רשת הגלידריות הפופולרית ביותר בקרקוב; טעמים טבעיים מתחלפים כל יום ומנות נדיבות.",
+    "googleRating": 4.8,
+    "googleReviewCount": "",
+    "location": "Multiple spots (e.g. Plac Nowy / Basztowa)",
+    "lat": 50.065,
+    "lng": 19.939,
+    "distanceFromHotelKm": 0.4,
+    "familyCost": "30–50 zł",
+    "costType": "Ice cream scoops for 4",
+    "stayHours": 0.5,
+    "defaultNote": "חובה לנסות את טעם ה-Karmel z różową solą (קרמל מלוח)",
+    "officialUrl": "https://goodlood.com/",
+    "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=Good+Lood+Krakow"
+  },
+  {
+    "id": "lody_starowislna",
+    "category": "Ice Cream",
+    "categoryHeb": "גלידה",
+    "nameEn": "Pracownia Cukiernicza (Lody Starowiślna)",
+    "descHeb": "הגלידריה הנוסטלגית המפורסמת של קרקוב; תמיד יש תור, אך הגלידה המסורתית שווה כל רגע.",
+    "googleRating": 4.7,
+    "googleReviewCount": "",
+    "location": "Starowiślna 83, Kraków",
+    "lat": 50.0515,
+    "lng": 19.9485,
+    "distanceFromHotelKm": 1.4,
+    "familyCost": "25–40 zł",
+    "costType": "Traditional scoops",
+    "stayHours": 0.5,
+    "defaultNote": "תשלום במזומן בלבד לעיתים קרובות",
+    "officialUrl": "",
+    "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=Pracownia+Cukiernicza+Starowislna+Krakow"
+  },
+  {
+    "id": "cafe_camelot",
+    "category": "Cafes & Sweets",
+    "categoryHeb": "בתי קפה וקינוחים",
+    "nameEn": "Café Camelot",
+    "descHeb": "בית קפה קסום וציורי בסמטה עתיקה עם עוגות ביתיות מדהימות ואווירה חמה.",
+    "googleRating": 4.6,
+    "googleReviewCount": "",
+    "location": "św. Tomasza 17, Kraków",
+    "lat": 50.0628,
+    "lng": 19.9378,
+    "distanceFromHotelKm": 0.1,
+    "familyCost": "60–100 zł",
+    "costType": "Cakes & drinks",
+    "stayHours": 1.0,
+    "defaultNote": "דקה אחת ברגל מהמלון, מעולה לקפה ועוגה",
+    "officialUrl": "",
+    "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=Cafe+Camelot+Krakow"
+  },
+  {
+    "id": "nowa_prowincja",
+    "category": "Cafes & Sweets",
+    "categoryHeb": "בתי קפה וקינוחים",
+    "nameEn": "Nowa Prowincja",
+    "descHeb": "בית קפה ספרותי ואינטימי המפורסם בשוקו החם הסמיך שלו ובעוגת התפוחים המשובחת.",
+    "googleRating": 4.7,
+    "googleReviewCount": "",
+    "location": "Bracka 3-5, Kraków",
+    "lat": 50.0597,
+    "lng": 19.9366,
+    "distanceFromHotelKm": 0.3,
+    "familyCost": "50–90 zł",
+    "costType": "Hot chocolate & cakes",
+    "stayHours": 1.0,
+    "defaultNote": "הילדים ישתגעו על השוקו הסמיך",
+    "officialUrl": "",
+    "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=Nowa+Prowincja+Bracka+Krakow"
+  },
+  {
+    "id": "cukiernia_michalik",
+    "category": "Cafes & Sweets",
+    "categoryHeb": "בתי קפה וקינוחים",
+    "nameEn": "Jama Michalika",
+    "descHeb": "בית קפה היסטורי ויפהפה מסוף המאה ה-19 עם ויטראז'ים, ציורי קיר ומאפים מסורתיים.",
+    "googleRating": 4.3,
+    "googleReviewCount": "",
+    "location": "Floriańska 45, Kraków",
+    "lat": 50.0645,
+    "lng": 19.9405,
+    "distanceFromHotelKm": 0.4,
+    "familyCost": "70–110 zł",
+    "costType": "Coffee & pastry",
+    "stayHours": 1.0,
+    "defaultNote": "חוויה תרבותית נוסטלגית ברחוב פלוריאנסקה",
+    "officialUrl": "https://jamamichalika.pl/",
+    "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=Jama+Michalika+Krakow"
+  },
+  {
+    "id": "zapiekanki_plac_nowy",
+    "category": "Quick & Easy",
+    "categoryHeb": "מהיר וקל",
+    "nameEn": "Zapiekanki (Plac Nowy Okrąglak)",
+    "descHeb": "טוסט הבגט הפולני המסורתי עם פטריות, גבינה מותכת ותוספות לבחירה בלב רובע קז'ימייז'.",
+    "googleRating": 4.5,
+    "googleReviewCount": "",
+    "location": "Plac Nowy, Kazimierz, Kraków",
+    "lat": 50.052,
+    "lng": 19.945,
+    "distanceFromHotelKm": 1.2,
+    "familyCost": "40–60 zł",
+    "costType": "Zapiekanki for family",
+    "stayHours": 0.5,
+    "defaultNote": "פתרון מושלם וזול לנשנוש מהיר",
+    "officialUrl": "",
+    "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=Plac+Nowy+Zapiekanki+Krakow"
+  },
+  {
+    "id": "obwarzanek_cart",
+    "category": "Quick & Easy",
+    "categoryHeb": "מהיר וקל",
+    "nameEn": "Kraków Obwarzanek Carts",
+    "descHeb": "הבייגלה העגול המסורתי של קרקוב (עם מלח, שומשום או פרג) הנמכר בעגלות כחולות בכל פינה.",
+    "googleRating": 4.8,
+    "googleReviewCount": "",
+    "location": "Old Town streets, Kraków",
+    "lat": 50.0617,
+    "lng": 19.9373,
+    "distanceFromHotelKm": 0.0,
+    "familyCost": "10–15 zł",
+    "costType": "A few pretzels for kids",
+    "stayHours": 0.2,
+    "defaultNote": "חטיף הליכה קלאסי שהילדים מנשנשים ברחוב",
+    "officialUrl": "",
+    "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=Obwarzanek+Krakowski"
+  }
+];
+
+function calculateDistance(lat1, lon1, lat2, lon2) {
+    const R = 6371;
+    const dLat = (lat2 - lat1) * Math.PI / 180;
+    const dLon = (lon2 - lon1) * Math.PI / 180;
+    const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+              Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+              Math.sin(dLon/2) * Math.sin(dLon/2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+    return R * c;
+}
+
+function estimateTransit(km) {
+    if (km <= 2.2) {
+        const mins = Math.max(4, Math.round((km / 4.5) * 60));
+        return { mins, mode: '🚶 הליכה' };
+    } else {
+        const mins = Math.max(8, Math.round((km / 22) * 60) + 4);
+        return { mins, mode: '🚗 רכב / מונית' };
+    }
+}
+
+let tripStops = [];
+let activeCategory = ATTRACTIONS_CATALOG[0].category;
+
+window.onload = function() {
+    loadTripFromUrl();
+};
+
+function getCurrentReferencePoint() {
+    if (tripStops.length === 0) {
+        return { name: HOME_BASE.name, lat: HOME_BASE.lat, lng: HOME_BASE.lng, isHotel: true };
+    } else {
+        const last = tripStops[tripStops.length - 1];
+        return { name: last.nameEn, lat: last.lat, lng: last.lng, isHotel: false };
+    }
+}
+
+function openModal() {
+    renderCategoryTabs();
+    renderCatalogList();
+    document.getElementById('catalogModal').style.display = 'block';
+}
+
+function closeModal() {
+    document.getElementById('catalogModal').style.display = 'none';
+}
+
+function renderCategoryTabs() {
+    const tabsContainer = document.getElementById('categoryTabs');
+    const categories = [...new Set(ATTRACTIONS_CATALOG.map(item => item.category))];
+    
+    tabsContainer.innerHTML = categories.map(cat => {
+        const item = ATTRACTIONS_CATALOG.find(i => i.category === cat);
+        const isActive = cat === activeCategory ? 'active' : '';
+        return `<button class="tab-btn ${isActive}" onclick="setActiveCategory('${cat}')">${item.categoryHeb}</button>`;
+    }).join('');
+}
+
+function setActiveCategory(cat) {
+    activeCategory = cat;
+    renderCategoryTabs();
+    renderCatalogList();
+}
+
+function renderCatalogList() {
+    const listContainer = document.getElementById('catalogList');
+    const ref = getCurrentReferencePoint();
+    
+    const refTextEl = document.getElementById('modalRefText');
+    if (ref.isHotel) {
+        refTextEl.innerHTML = `📏 <strong>תחנה ראשונה:</strong> מרחקים ממוינים לפי קרבה ל<strong>מלון הבית</strong>`;
+    } else {
+        refTextEl.innerHTML = `📏 <strong>תחנה הבאה:</strong> מרחקים ממוינים לפי קרבה לתחנה הקודמת: <strong>${ref.name}</strong>`;
     }
 
-    function changeStopCount(delta) {
-      let count = activities.length + delta;
-      if (count < 1) count = 1;
-      if (count > 12) count = 12;
-
-      while (activities.length < count) {
-        activities.push({ type: "sightseeing", name: "", duration: 2.0, notes: "" });
-      }
-      while (activities.length > count) {
-        activities.pop();
-      }
-
-      document.getElementById("activityCountBadge").textContent = activities.length;
-      calculatedDistances = {};
-      saveState();
-      renderItinerary();
-      renderSummaryBanner();
-    }
-
-    function removeActivity(idx) {
-      activities.splice(idx, 1);
-      document.getElementById("activityCountBadge").textContent = activities.length;
-      calculatedDistances = {};
-      saveState();
-      renderItinerary();
-      renderSummaryBanner();
-    }
-
-    function moveActivity(idx, delta) {
-      const target = idx + delta;
-      if (target < 0 || target >= activities.length) return;
-      const temp = activities[idx];
-      activities[idx] = activities[target];
-      activities[target] = temp;
-      calculatedDistances = {};
-      saveState();
-      renderItinerary();
-      renderSummaryBanner();
-    }
-
-    function addNewActivity() {
-      activities.push({
-        type: "sightseeing",
-        name: "",
-        duration: 2.0,
-        notes: ""
-      });
-      document.getElementById("activityCountBadge").textContent = activities.length;
-      calculatedDistances = {};
-      saveState();
-      renderItinerary();
-      renderSummaryBanner();
-    }
-
-    function toggleReturnToHotel(checked) {
-      returnToHotel = checked;
-      saveState();
-      renderItinerary();
-      renderSummaryBanner();
-    }
-
-    function onActNameInput(idx, val) {
-      if (!activities[idx]) return;
-      activities[idx].name = val;
-      showAutocompleteDropdown(idx, val);
-      saveState();
-      updateDynamicLinks(idx);
-    }
-
-    function updateActivityField(idx, field, val) {
-      if (!activities[idx]) return;
-      activities[idx][field] = field === "duration" ? parseFloat(val) || 1.0 : val;
-      saveState();
-      renderSummaryBanner();
-    }
-
-    function renderSummaryBanner() {
-      const banner = document.getElementById("summaryBanner");
-      const totalDistEl = document.getElementById("summaryTotalDistance");
-      const totalDurEl = document.getElementById("summaryTotalDuration");
-      const legsContainer = document.getElementById("summaryLegsContainer");
-      if (!banner || !totalDistEl || !totalDurEl || !legsContainer) return;
-
-      let totalKm = 0;
-      let hasDistances = false;
-      const legKeys = Object.keys(calculatedDistances);
-      legKeys.forEach(k => {
-        if (typeof calculatedDistances[k] === "number") {
-          totalKm += calculatedDistances[k];
-          hasDistances = true;
-        }
-      });
-
-      let totalDuration = 0;
-      activities.forEach(a => {
-        totalDuration += parseFloat(a.duration) || 2.0;
-      });
-
-      totalDurEl.textContent = `${totalDuration.toFixed(1)} שעות`;
-      totalDistEl.textContent = formatDistance(totalKm);
-
-      if (hasDistances) {
-        banner.classList.remove("hidden");
-        legsContainer.innerHTML = "";
-        activities.forEach((act, idx) => {
-          const legKey = idx === 0 ? "hotel_to_0" : `${idx - 1}_to_${idx}`;
-          const km = calculatedDistances[legKey];
-          if (km !== undefined) {
-            const pill = document.createElement("span");
-            pill.className = "px-2 py-0.5 bg-white/80 border border-emerald-200 rounded-md text-[10px] font-semibold text-emerald-800 flex items-center gap-1";
-            pill.innerHTML = `<span>עצירה ${idx + 1}:</span> <strong>${formatDistance(km)}</strong>`;
-            legsContainer.appendChild(pill);
-          }
+    let items = ATTRACTIONS_CATALOG
+        .filter(item => item.category === activeCategory)
+        .map(item => {
+            const dist = calculateDistance(ref.lat, ref.lng, item.lat, item.lng);
+            const isAlreadyAdded = tripStops.some(s => s.id === item.id);
+            return { ...item, distanceFromRef: dist, isAlreadyAdded };
         });
 
-        if (returnToHotel && activities.length > 0) {
-          const retKey = `${activities.length - 1}_to_hotel`;
-          const retKm = calculatedDistances[retKey];
-          if (retKm !== undefined) {
-            const pill = document.createElement("span");
-            pill.className = "px-2 py-0.5 bg-white/80 border border-emerald-200 rounded-md text-[10px] font-semibold text-emerald-800 flex items-center gap-1";
-            pill.innerHTML = `<span>חזרה למלון:</span> <strong>${formatDistance(retKm)}</strong>`;
-            legsContainer.appendChild(pill);
-          }
-        }
-      } else {
-        banner.classList.add("hidden");
-      }
-    }
+    items.sort((a, b) => a.distanceFromRef - b.distanceFromRef);
 
-    function createConnectorHtml(originText, destinationText, legKey) {
-      const km = calculatedDistances[legKey];
-      const hasRoute = Boolean(originText && destinationText);
-      const dirUrl = hasRoute ? getDirectionsUrl(originText, destinationText) : "#";
-
-      let badgeHtml = "";
-      if (hasRoute) {
-        if (km !== undefined && km !== null) {
-          badgeHtml = `
-            <a href="${dirUrl}" target="_blank" rel="noopener" class="px-3 py-1 bg-emerald-50 hover:bg-emerald-100 border border-emerald-300 text-emerald-800 rounded-full text-xs font-bold flex items-center gap-1.5 shadow-2xs transition" title="פתח מסלול ב-Google Maps">
-              <i class="fa-solid fa-person-walking text-emerald-600"></i>
-              <span>${formatDistance(km)}</span>
-              <span class="text-[10px] text-emerald-600 opacity-80 font-normal">מסלול ↗</span>
-            </a>
-          `;
-        } else {
-          badgeHtml = `
-            <a href="${dirUrl}" target="_blank" rel="noopener" class="px-3 py-1 bg-white hover:bg-slate-50 border border-slate-200 text-slate-600 rounded-full text-xs font-medium flex items-center gap-1.5 shadow-2xs transition" title="פתח מסלול ב-Google Maps">
-              <i class="fa-solid fa-person-walking text-slate-400"></i>
-              <span>לחץ ״בוא נצא!״ לחישוב</span>
-              <span class="text-[10px] text-slate-400">מסלול ↗</span>
-            </a>
-          `;
-        }
-      } else {
-        badgeHtml = `
-          <div class="px-3 py-1 bg-slate-100 border border-slate-200 text-slate-400 rounded-full text-xs font-medium flex items-center gap-1 opacity-70">
-            <i class="fa-solid fa-arrow-down text-[10px]"></i>
-            <span>הזן יעדים לקבלת מסלול</span>
-          </div>
-        `;
-      }
-
-      return `
-        <div class="flex flex-col items-center my-1 relative">
-          <div class="w-0.5 h-3 bg-slate-200"></div>
-          <div class="flex items-center gap-1.5 my-0.5">
-            ${badgeHtml}
-            ${hasRoute ? `
-              <button onclick="setManualDistance('${legKey}')" class="w-6 h-6 rounded-full bg-white hover:bg-slate-100 border border-slate-200 text-slate-400 hover:text-slate-700 flex items-center justify-center text-[10px] shadow-2xs transition" title="ערוך מרחק ידנית">
-                <i class="fa-solid fa-pencil"></i>
-              </button>
-            ` : ""}
-          </div>
-          <div class="w-0.5 h-3 bg-slate-200"></div>
-        </div>
-      `;
-    }
-
-    function renderItinerary() {
-      const container = document.getElementById("itineraryContainer");
-      if (!container) return;
-      container.innerHTML = "";
-      const hotel = PRESET_HOTELS[selectedHotelIdx];
-
-      // 1. Hotel Base Card
-      const hotelCard = document.createElement("div");
-      hotelCard.className = "bg-white rounded-2xl p-4 border border-blue-200 shadow-xs relative";
-      hotelCard.innerHTML = `
-        <div class="flex items-center justify-between gap-2 mb-1.5">
-          <span class="text-[11px] font-bold uppercase tracking-wider text-blue-700 bg-blue-50 px-2 py-0.5 rounded-md flex items-center gap-1.5">
-            <i class="fa-solid fa-flag-checkered text-blue-600"></i>
-            <span>מוצא: ${hotel.shortTitle}</span>
-          </span>
-          <span class="text-[11px] text-slate-400 font-medium">${hotel.city}</span>
-        </div>
-        <div class="text-sm font-bold text-slate-900 leading-snug">${hotel.name}</div>
-        <div class="text-xs text-slate-500 mb-2.5 leading-relaxed">${hotel.address}</div>
-        <div class="flex items-center gap-2 pt-2 border-t border-slate-100 text-xs">
-          <a href="${getSearchUrl(hotel.name + ' ' + hotel.city)}" target="_blank" rel="noopener" class="text-blue-600 hover:text-blue-800 font-semibold flex items-center gap-1">
-            <i class="fa-brands fa-google text-[11px]"></i> מידע בגוגל
-          </a>
-          <span class="text-slate-300">•</span>
-          <a href="${getMapUrl(hotel.address)}" target="_blank" rel="noopener" class="text-emerald-600 hover:text-emerald-800 font-semibold flex items-center gap-1">
-            <i class="fa-solid fa-location-dot text-[11px]"></i> מיקום במפה
-          </a>
-        </div>
-      `;
-      container.appendChild(hotelCard);
-
-      // 2. Connector Hotel -> Activity 0
-      if (activities.length > 0) {
-        const firstAct = activities[0].name ? `${activities[0].name}, ${hotel.city}` : "";
-        const legWrap = document.createElement("div");
-        legWrap.innerHTML = createConnectorHtml(hotel.address, firstAct, "hotel_to_0");
-        container.appendChild(legWrap);
-      }
-
-      // 3. Activities
-      activities.forEach((act, idx) => {
-        const cat = CATEGORIES[act.type] || CATEGORIES.sightseeing;
-        const card = document.createElement("div");
-        card.className = "bg-white rounded-2xl p-4 border border-slate-200/90 shadow-xs relative mb-0";
-        card.innerHTML = `
-          <div class="flex items-center justify-between gap-2 mb-2">
-            <div class="flex items-center gap-2">
-              <span class="w-6 h-6 rounded-full bg-slate-900 text-white flex items-center justify-center text-xs font-bold shrink-0">
-                ${idx + 1}
-              </span>
-              <select 
-                onchange="updateActivityField(${idx}, 'type', this.value); renderItinerary();" 
-                class="text-xs font-bold border border-slate-200 rounded-lg px-2 py-1 bg-slate-50 text-slate-700 cursor-pointer">
-                ${CAT_KEYS.map(k => `
-                  <option value="${k}" ${act.type === k ? 'selected' : ''}>${CATEGORIES[k].label}</option>
-                `).join("")}
-              </select>
-            </div>
-
-            <div class="flex items-center gap-1.5">
-              <div class="flex items-center bg-amber-50 border border-amber-200 rounded-lg px-2 py-0.5 text-xs text-amber-900">
-                <i class="fa-regular fa-clock text-amber-600 text-[10px] ml-1"></i>
-                <select 
-                  onchange="updateActivityField(${idx}, 'duration', this.value)" 
-                  class="bg-transparent font-bold text-xs outline-none cursor-pointer">
-                  <option value="1.0" ${act.duration === 1.0 ? 'selected' : ''}>שעה אחת</option>
-                  <option value="1.5" ${act.duration === 1.5 ? 'selected' : ''}>1.5 שעות</option>
-                  <option value="2.0" ${act.duration === 2.0 ? 'selected' : ''}>שעתיים</option>
-                  <option value="2.5" ${act.duration === 2.5 ? 'selected' : ''}>2.5 שעות</option>
-                  <option value="3.0" ${act.duration === 3.0 ? 'selected' : ''}>3 שעות</option>
-                  <option value="4.0" ${act.duration === 4.0 ? 'selected' : ''}>4 שעות</option>
-                  <option value="5.0" ${act.duration === 5.0 ? 'selected' : ''}>5 שעות</option>
-                  <option value="6.0" ${act.duration === 6.0 ? 'selected' : ''}>6 שעות</option>
-                </select>
-              </div>
-
-              <div class="flex items-center gap-0.5 border-r border-slate-200 pr-1 mr-1">
-                ${idx > 0 ? `
-                  <button onclick="moveActivity(${idx}, -1)" class="w-6 h-6 rounded-md hover:bg-slate-100 text-slate-400 hover:text-slate-700 flex items-center justify-center text-xs" title="הזז למעלה">
-                    <i class="fa-solid fa-chevron-up text-[10px]"></i>
-                  </button>
-                ` : ""}
-                ${idx < activities.length - 1 ? `
-                  <button onclick="moveActivity(${idx}, 1)" class="w-6 h-6 rounded-md hover:bg-slate-100 text-slate-400 hover:text-slate-700 flex items-center justify-center text-xs" title="הזז למטה">
-                    <i class="fa-solid fa-chevron-down text-[10px]"></i>
-                  </button>
-                ` : ""}
-                <button onclick="removeActivity(${idx})" class="w-6 h-6 rounded-md hover:bg-red-50 text-slate-300 hover:text-red-600 flex items-center justify-center text-xs" title="מחק עצירה">
-                  <i class="fa-solid fa-xmark"></i>
+    listContainer.innerHTML = items.map(item => {
+        const distLabel = ref.isHotel ? "מהמלון" : `מ-${ref.name}`;
+        const ratingDisplay = item.googleRating ? `${item.googleRating} ⭐` : 'מומלץ';
+        return `
+            <div class="catalog-card ${item.isAlreadyAdded ? 'already-added' : ''}">
+                <div class="catalog-card-header">
+                    <span>${item.nameEn}</span>
+                    <span style="color: #ea580c;">${ratingDisplay}</span>
+                </div>
+                <div style="font-size: 13px; color: #475569;">${item.descHeb}</div>
+                <div style="font-size: 12px; color: var(--text-muted);">
+                    📍 ${item.location} &bull; 📏 <strong style="color:#2563eb;">${item.distanceFromRef.toFixed(1)} ק"מ</strong> ${distLabel}
+                </div>
+                <div style="font-size: 12px; color: #0284c7;">
+                    ⏱️ שהות משוערת: ${item.stayHours} שעות &bull; 💰 ${item.familyCost} (${item.costType})
+                </div>
+                <button class="btn-select" onclick="addStop('${item.id}')" ${item.isAlreadyAdded ? 'disabled' : ''}>
+                    ${item.isAlreadyAdded ? '✓ כבר נוסף למסלול' : '+ הוסף לתחנה הבאה'}
                 </button>
-              </div>
             </div>
-          </div>
-
-          <!-- Activity Place Input with Autocomplete Container -->
-          <div class="relative mb-2">
-            <input 
-              type="text" 
-              id="actNameInput_${idx}"
-              dir="auto"
-              value="${act.name || ''}"
-              placeholder="שם המקום או האטרקציה (למשל: House of Attractions, Sukiennice)..." 
-              oninput="onActNameInput(${idx}, this.value)"
-              onfocus="showAutocompleteDropdown(${idx}, this.value)"
-              onblur="hideAutocompleteDropdown(${idx})"
-              class="w-full px-3 py-2 text-xs font-bold text-slate-800 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500 transition" 
-            />
-            <div 
-              id="autocompleteDropdown_${idx}" 
-              class="autocomplete-dropdown absolute left-0 right-0 top-full mt-1 bg-white border border-slate-200 rounded-2xl shadow-xl z-30 max-h-56 overflow-y-auto hidden">
-            </div>
-          </div>
-
-          <!-- Notes Input -->
-          <input 
-            type="text" 
-            id="actNotesInput_${idx}"
-            dir="auto"
-            value="${act.notes || ''}"
-            placeholder="הערות אישיות (כרטיסים, שעות פתיחה, הזמנות מראש)..." 
-            oninput="updateActivityField(${idx}, 'notes', this.value)"
-            class="w-full px-3 py-1.5 text-xs text-slate-600 bg-slate-50/70 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500 transition mb-2" 
-          />
-
-          <!-- Links Row -->
-          <div id="linksRow_${idx}" class="flex items-center gap-2 pt-2 border-t border-slate-100 text-xs"></div>
         `;
-        container.appendChild(card);
-        updateDynamicLinks(idx);
+    }).join('');
+}
 
-        // Connector between consecutive activities
-        if (idx < activities.length - 1) {
-          const fromText = act.name ? `${act.name}, ${hotel.city}` : "";
-          const toText = activities[idx + 1].name ? `${activities[idx + 1].name}, ${hotel.city}` : "";
-          const legWrap = document.createElement("div");
-          legWrap.innerHTML = createConnectorHtml(fromText, toText, `${idx}_to_${idx + 1}`);
-          container.appendChild(legWrap);
-        }
-      });
+function addStop(id) {
+    const item = ATTRACTIONS_CATALOG.find(i => i.id === id);
+    if (!item) return;
 
-      // 4. Return to Hotel connector and card (if enabled)
-      if (returnToHotel && activities.length > 0) {
-        const lastAct = activities[activities.length - 1];
-        const lastActText = lastAct.name ? `${lastAct.name}, ${hotel.city}` : "";
-        const returnLegWrap = document.createElement("div");
-        returnLegWrap.innerHTML = createConnectorHtml(lastActText, hotel.address, `${activities.length - 1}_to_hotel`);
-        container.appendChild(returnLegWrap);
+    tripStops.push({ ...item, customNote: item.defaultNote });
+    closeModal();
+    renderPlanningList();
+    hideResults();
+    updateUrl();
+}
 
-        const returnCard = document.createElement("div");
-        returnCard.className = "bg-indigo-50/70 rounded-2xl p-3 border border-indigo-200 shadow-2xs flex items-center justify-between gap-3";
-        returnCard.innerHTML = `
-          <div class="flex items-center gap-2.5">
-            <span class="w-8 h-8 rounded-xl bg-indigo-600 text-white flex items-center justify-center text-xs shadow-xs">
-              <i class="fa-solid fa-moon"></i>
-            </span>
-            <div>
-              <div class="text-xs font-bold text-indigo-900 leading-tight">סיום היום: חזרה ל${hotel.shortTitle}</div>
-              <div class="text-[11px] text-indigo-700 leading-snug">${hotel.name}</div>
+function removeStop(idx) {
+    tripStops.splice(idx, 1);
+    renderPlanningList();
+    hideResults();
+    updateUrl();
+}
+
+function updateStopNote(idx, note) {
+    tripStops[idx].customNote = note;
+    updateUrl();
+}
+
+function renderPlanningList() {
+    const listEl = document.getElementById('planningList');
+    const counterEl = document.getElementById('plan-counter');
+
+    if (tripStops.length === 0) {
+        listEl.innerHTML = `
+            <div style="text-align: center; color: var(--text-muted); padding: 30px; background: white; border-radius: 12px; border: 1px dashed var(--border);" id="empty-state">
+                הרשימה ריקה כרגע. לחצו על "+ הוסף אטרקציה" לבחירה מתוך 38 האטרקציות המאומתות בקטלוג.
+            </div>`;
+        counterEl.innerText = "0 אטרקציות";
+        return;
+    }
+
+    counterEl.innerText = `${tripStops.length} אטרקציות בתכנון`;
+
+    listEl.innerHTML = tripStops.map((stop, idx) => `
+        <div class="planning-item">
+            <div class="item-head">
+                <div>
+                    <span class="item-title">${idx + 1}. ${stop.nameEn}</span>
+                    <span class="item-tag">${stop.categoryHeb}</span>
+                </div>
+                <button class="btn-del" onclick="removeStop(${idx})">הסר</button>
             </div>
-          </div>
-          <a href="${getDirectionsUrl(lastActText || hotel.address, hotel.address)}" target="_blank" rel="noopener" class="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 transition shadow-2xs">
-            <i class="fa-solid fa-diamond-turn-right text-[10px]"></i>
-            <span>ניווט למלון</span>
-          </a>
+            <div class="item-sub">⏱️ שהות: כ-${stop.stayHours} שעות &bull; ⭐ ${stop.googleRating} &bull; 💰 ${stop.familyCost}</div>
+            <input type="text" class="note-input" value="${stop.customNote || ''}" oninput="updateStopNote(${idx}, this.value)" placeholder="הערה אישית לתחנה זו...">
+        </div>
+    `).join('');
+}
+
+function calculateAndShowPlan() {
+    if (tripStops.length === 0) {
+        alert("נא להוסיף לפחות אטרקציה אחת לפני הפעלת המסלול.");
+        return;
+    }
+
+    const resultsSec = document.getElementById('resultsSection');
+    const timelineEl = document.getElementById('flowTimeline');
+
+    let totalTransitKm = 0;
+    let totalTransitMins = 0;
+    let totalStayHours = 0;
+    let html = '';
+
+    html += `
+        <div class="flow-step hotel-step">
+            <strong>🏨 יציאה ממלון הבית:</strong> ${HOME_BASE.name}
+        </div>
+    `;
+
+    let prevPoint = HOME_BASE;
+
+    tripStops.forEach((stop, idx) => {
+        const legDist = calculateDistance(prevPoint.lat, prevPoint.lng, stop.lat, stop.lng);
+        const transit = estimateTransit(legDist);
+
+        totalTransitKm += legDist;
+        totalTransitMins += transit.mins;
+        totalStayHours += stop.stayHours;
+
+        const fromLabel = idx === 0 ? "מלון הבית" : `תחנה ${idx} (${prevPoint.nameEn})`;
+
+        html += `
+            <div class="flow-leg">
+                <div class="flow-leg-badge">
+                    <span>${transit.mode}</span>
+                    <span>&bull;</span>
+                    <span><strong>${legDist.toFixed(1)} ק"מ</strong></span>
+                    <span>&bull;</span>
+                    <span>כ-${transit.mins} דק' מ${fromLabel}</span>
+                </div>
+            </div>
         `;
-        container.appendChild(returnCard);
-      }
-    }
 
-    function haversineDistanceKm(lat1, lon1, lat2, lon2) {
-      const R = 6371;
-      const dLat = (lat2 - lat1) * Math.PI / 180;
-      const dLon = (lon2 - lon1) * Math.PI / 180;
-      const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-                Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
-                Math.sin(dLon / 2) * Math.sin(dLon / 2);
-      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-      return R * c;
-    }
+        html += `
+            <div class="flow-step">
+                <div style="display:flex; justify-content:space-between; margin-bottom:4px;">
+                    <strong>תחנה ${idx + 1}: ${stop.nameEn}</strong>
+                    <span style="font-size:12px; color:#0369a1; background:#e0f2fe; padding:2px 8px; border-radius:10px;">${stop.categoryHeb}</span>
+                </div>
+                <div style="font-size:13px; color:#475569; margin-bottom:6px;">${stop.descHeb}</div>
+                <div style="font-size:12px; color:#64748b; margin-bottom:6px;">
+                    ⏱️ שהות מומלצת: כ-${stop.stayHours} שעות &bull; ⭐ דירוג: ${stop.googleRating} &bull; 💰 ${stop.familyCost}
+                </div>
+                ${stop.customNote ? `<div style="font-size:12px; background:#f8fafc; border-right:3px solid #2563eb; padding:5px 8px; color:#1e293b;">💡 <strong>הערה:</strong> ${stop.customNote}</div>` : ''}
+            </div>
+        `;
 
-    async function getPreciseWalkingDistance(originCoords, destCoords) {
-      const straightKm = haversineDistanceKm(originCoords.lat, originCoords.lng, destCoords.lat, destCoords.lng);
-      if (straightKm < 0.05) return 0.05;
-
-      try {
-        const url = `https://router.project-osrm.org/route/v1/foot/${originCoords.lng},${originCoords.lat};${destCoords.lng},${destCoords.lat}?overview=false`;
-        const res = await fetch(url);
-        if (res.ok) {
-          const data = await res.json();
-          if (data?.routes?.[0]?.distance) {
-            const osrmKm = data.routes[0].distance / 1000;
-            // Prevent unrealistic detours across river bridges/plazas
-            if (osrmKm / straightKm <= 1.35) {
-              return osrmKm;
-            }
-          }
-        }
-      } catch (e) {}
-
-      // Urban grid walking factor ~1.215x straight line
-      return straightKm * 1.215;
-    }
-
-    async function geocodeLocation(rawName, hotel) {
-      const clean = normalizeSearchQuery(rawName);
-      if (!clean) return null;
-
-      if (geocodeCache[clean]) return geocodeCache[clean];
-
-      // Check predefined venue dictionary
-      for (const [key, coords] of Object.entries(KNOWN_VENUES)) {
-        if (clean.includes(key) || key.includes(clean)) {
-          geocodeCache[clean] = coords;
-          return coords;
-        }
-      }
-
-      // Query Photon API
-      try {
-        const url = `https://photon.komoot.io/api/?q=${encodeURIComponent(clean)}&lat=${hotel.lat}&lon=${hotel.lng}&limit=1`;
-        const res = await fetch(url);
-        if (res.ok) {
-          const data = await res.json();
-          if (data?.features?.[0]?.geometry?.coordinates) {
-            const [lon, lat] = data.features[0].geometry.coordinates;
-            const coords = { lat: parseFloat(lat), lng: parseFloat(lon) };
-            geocodeCache[clean] = coords;
-            return coords;
-          }
-        }
-      } catch (e) {}
-
-      // Query Nominatim
-      try {
-        const nomUrl = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(`${rawName}, ${hotel.city}`)}&limit=1`;
-        const res = await fetch(nomUrl, { headers: { "Accept-Language": "en" } });
-        if (res.ok) {
-          const data = await res.json();
-          if (data?.[0]?.lat && data?.[0]?.lon) {
-            const coords = { lat: parseFloat(data[0].lat), lng: parseFloat(data[0].lon) };
-            geocodeCache[clean] = coords;
-            return coords;
-          }
-        }
-      } catch (e) {}
-
-      return null;
-    }
-
-    async function calculateTripDistances() {
-      const topBtn = document.getElementById("letsGoBtnTop");
-      const bottomBtn = document.getElementById("letsGoBtnBottom");
-
-      if (topBtn) {
-        topBtn.disabled = true;
-        topBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i><span>מחשב...</span>`;
-      }
-      if (bottomBtn) {
-        bottomBtn.disabled = true;
-        bottomBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i><span>מחשב...</span>`;
-      }
-
-      const hotel = PRESET_HOTELS[selectedHotelIdx];
-
-      // Geocode all stops
-      for (let i = 0; i < activities.length; i++) {
-        if (activities[i].name) {
-          const coords = await geocodeLocation(activities[i].name, hotel);
-          if (coords) {
-            activities[i]._coords = coords;
-          }
-        }
-      }
-
-      // Outbound leg: Hotel -> Stop 0
-      if (activities.length > 0 && activities[0].name) {
-        const toCoords = activities[0]._coords || await geocodeLocation(activities[0].name, hotel);
-        if (toCoords) {
-          calculatedDistances["hotel_to_0"] = await getPreciseWalkingDistance(hotel, toCoords);
-        }
-      }
-
-      // Between activities
-      for (let i = 0; i < activities.length - 1; i++) {
-        const fromCoords = activities[i]._coords;
-        const toCoords = activities[i + 1]._coords;
-        if (fromCoords && toCoords) {
-          calculatedDistances[`${i}_to_${i + 1}`] = await getPreciseWalkingDistance(fromCoords, toCoords);
-        }
-      }
-
-      // Return leg: Last stop -> Hotel
-      if (returnToHotel && activities.length > 0) {
-        const lastIdx = activities.length - 1;
-        const lastCoords = activities[lastIdx]._coords;
-        if (lastCoords) {
-          calculatedDistances[`${lastIdx}_to_hotel`] = await getPreciseWalkingDistance(lastCoords, hotel);
-        }
-      }
-
-      saveState();
-      renderItinerary();
-      renderSummaryBanner();
-
-      if (topBtn) {
-        topBtn.disabled = false;
-        topBtn.innerHTML = `<i class="fa-solid fa-person-walking"></i><span>בוא נצא!</span>`;
-      }
-      if (bottomBtn) {
-        bottomBtn.disabled = false;
-        bottomBtn.innerHTML = `<i class="fa-solid fa-person-walking"></i><span>בוא נצא!</span>`;
-      }
-
-      showToast("מרחקי ההליכה חושבו ועודכנו בהצלחה!");
-    }
-
-    function resetTripPlan() {
-      activities = [
-        { type: "museum", name: "House of Attractions", duration: 2.0, notes: "Grodzka 2, Old Town" },
-        { type: "sightseeing", name: "Bricks and Figs Krakow", duration: 2.0, notes: "Dąbrowskiego 20" }
-      ];
-      calculatedDistances = {};
-      document.getElementById("activityCountBadge").textContent = activities.length;
-      saveState();
-      renderItinerary();
-      renderSummaryBanner();
-      showToast("המסלול אופס לברירת המחדל");
-    }
-
-    function getShareableUrl() {
-      try {
-        // כיווץ אופטימלי: המרת סוג פעילות לאינדקס ספרתי קצר והשמטת מפתחות מיותרים
-        const compactActivities = activities.map(x => {
-          const typeIdx = CAT_KEYS.indexOf(x.type);
-          return [
-            typeIdx !== -1 ? typeIdx : x.type,
-            x.name || "",
-            Number(x.duration) || 2,
-            x.notes || ""
-          ];
-        });
-
-        const payload = {
-          h: selectedHotelIdx,
-          r: returnToHotel ? 1 : 0,
-          a: compactActivities
-        };
-
-        const jsonStr = JSON.stringify(payload);
-        // קידוד Base64URL מלא ללא תווים שנשברים בווטסאפ (+, /, =, %)
-        const bytes = new TextEncoder().encode(jsonStr);
-        let binary = "";
-        for (let i = 0; i < bytes.length; i++) {
-          binary += String.fromCharCode(bytes[i]);
-        }
-        const b64Url = btoa(binary)
-          .replace(/\+/g, "-")
-          .replace(/\//g, "_")
-          .replace(/=+$/, "");
-
-        const baseUrl = window.location.href.split("#")[0].split("?")[0];
-        return `${baseUrl}#plan=${b64Url}`;
-      } catch (e) {
-        return window.location.href;
-      }
-    }
-
-    function generateShareText() {
-      const hotel = PRESET_HOTELS[selectedHotelIdx];
-      let txt = `🗺️ *מסלול טיול יומי - ${hotel.city}*\n`;
-      txt += `🏨 *בסיס יציאה:* ${hotel.name}\n`;
-      txt += `📍 ${hotel.address}\n\n`;
-
-      let totalKm = 0;
-      let totalHrs = 0;
-
-      activities.forEach((act, i) => {
-        totalHrs += parseFloat(act.duration) || 0;
-        const cat = CATEGORIES[act.type] || CATEGORIES.sightseeing;
-        const legK = i === 0 ? `hotel_to_0` : `${i-1}_to_${i}`;
-        const dist = calculatedDistances[legK] !== undefined ? ` (~${calculatedDistances[legK].toFixed(2)} ק״מ הליכה)` : "";
-        if (calculatedDistances[legK]) totalKm += calculatedDistances[legK];
-
-        txt += `${cat.emoji} *עצירה ${i + 1}:* ${act.name || 'ללא שם'}${dist}\n`;
-        txt += `   ⏱️ מתוכנן: ${act.duration} שעות\n`;
-        if (act.notes) txt += `   📝 הערות: ${act.notes}\n`;
-        txt += `   🔗 מיקום במפה: ${getMapUrl(act.name + ', ' + hotel.city)}\n\n`;
-      });
-
-      if (returnToHotel && activities.length > 0) {
-        const retK = `${activities.length - 1}_to_hotel`;
-        const dist = calculatedDistances[retK] !== undefined ? ` (~${calculatedDistances[retK].toFixed(2)} ק״מ הליכה)` : "";
-        if (calculatedDistances[retK]) totalKm += calculatedDistances[retK];
-        txt += `🌙 *חזרה למלון:* ${hotel.name}${dist}\n\n`;
-      }
-
-      txt += `📊 *סיכום כללי:*\n`;
-      txt += `• סה״כ זמן פעילות: כ-${totalHrs.toFixed(1)} שעות\n`;
-      if (totalKm > 0) txt += `• סה״כ מרחק הליכה: כ-${totalKm.toFixed(2)} ק״מ\n\n`;
-      
-      // השארת הקישור בשורה נפרדת נקייה לחלוטין כדי למנוע היצמדות לעברית בווטסאפ
-      txt += `🔗 *לפתיחת המסלול המלא באפליקציה:*\n${getShareableUrl()}`;
-
-      return txt;
-    }
-
-    function openShareModal() {
-      const modal = document.getElementById("shareModal");
-      const preview = document.getElementById("sharePreviewText");
-      const urlInput = document.getElementById("shareUrlInput");
-      if (preview) preview.textContent = generateShareText();
-      if (urlInput) urlInput.value = getShareableUrl();
-      if (modal) modal.classList.remove("hidden");
-    }
-
-    function closeShareModal() {
-      const modal = document.getElementById("shareModal");
-      if (modal) modal.classList.add("hidden");
-    }
-
-    function copyShareableUrl() {
-      const url = getShareableUrl();
-      const temp = document.createElement("input");
-      temp.value = url;
-      document.body.appendChild(temp);
-      temp.select();
-      try {
-        document.execCommand("copy");
-        showToast("הקישור האינטראקטיבי הועתק בהצלחה!");
-      } catch (e) {}
-      document.body.removeChild(temp);
-    }
-
-    function copyItineraryText() {
-      const txt = generateShareText();
-      const tempInput = document.createElement("textarea");
-      tempInput.value = txt;
-      document.body.appendChild(tempInput);
-      tempInput.select();
-      try {
-        document.execCommand("copy");
-        showToast("המסלול הועתק ללוח! מוכן להדבקה.");
-      } catch (e) {
-        showToast("אנא העתק ידנית מתוך התצוגה המקדימה");
-      }
-      document.body.removeChild(tempInput);
-      closeShareModal();
-    }
-
-    function shareViaWhatsApp() {
-      const txt = encodeURIComponent(generateShareText());
-      window.open(`https://api.whatsapp.com/send?text=${txt}`, '_blank');
-      closeShareModal();
-    }
-
-    function triggerNativeShare() {
-      const txt = generateShareText();
-      if (navigator.share) {
-        navigator.share({
-          title: "לוח זמנים ומסלול יומי",
-          text: txt,
-          url: getShareableUrl()
-        }).catch(() => {});
-        closeShareModal();
-      } else {
-        copyItineraryText();
-      }
-    }
-
-    function saveState() {
-      try {
-        const payload = {
-          selectedHotelIdx,
-          activities,
-          returnToHotel,
-          calculatedDistances
-        };
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
-      } catch (e) {}
-    }
-
-    function loadState() {
-      try {
-        const storedApiKey = localStorage.getItem(GOOGLE_API_KEY);
-        if (storedApiKey) userGoogleApiKey = storedApiKey;
-
-        const storedDefault = localStorage.getItem(DEFAULT_HOTEL_KEY);
-        if (storedDefault !== null) {
-          const parsedDefault = parseInt(storedDefault, 10);
-          if (!isNaN(parsedDefault) && parsedDefault >= 0 && parsedDefault < PRESET_HOTELS.length) {
-            permanentDefaultIdx = parsedDefault;
-            selectedHotelIdx = parsedDefault;
-          }
-        }
-
-        // בדיקה אם קיים מסלול ב-URL hash
-        if (window.location.hash.includes("plan=")) {
-          try {
-            let raw = window.location.hash.split("plan=")[1] || "";
-            raw = raw.split("&")[0];
-            let jsonStr = "";
-
-            // ניסיון 1: פענוח Base64URL החדש
-            try {
-              let b64 = raw.replace(/-/g, "+").replace(/_/g, "/");
-              while (b64.length % 4) b64 += "=";
-              const binary = atob(b64.replace(/ /g, "+"));
-              const bytes = new Uint8Array(binary.length);
-              for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
-              jsonStr = new TextDecoder().decode(bytes);
-            } catch (e1) {
-              // ניסיון 2: פענוח מורשת (Legacy URL-encoded Base64) למקרה של קישור ישן
-              try {
-                const cleaned = decodeURIComponent(raw).replace(/ /g, "+");
-                jsonStr = decodeURIComponent(escape(atob(cleaned)));
-              } catch (e2) {
-                jsonStr = "";
-              }
-            }
-
-            if (jsonStr) {
-              const parsed = JSON.parse(jsonStr);
-              if (typeof parsed.h === "number" && parsed.h >= 0 && parsed.h < PRESET_HOTELS.length) {
-                selectedHotelIdx = parsed.h;
-              }
-              if (typeof parsed.r === "number") {
-                returnToHotel = parsed.r === 1;
-              }
-              if (Array.isArray(parsed.a)) {
-                activities = parsed.a.map(item => {
-                  let type = item[0];
-                  // שחזור סוג קטגוריה אם מיוצג כאינדקס קצר
-                  if (typeof type === "number" && CAT_KEYS[type]) {
-                    type = CAT_KEYS[type];
-                  }
-                  return {
-                    type: type || "sightseeing",
-                    name: item[1] || "",
-                    duration: parseFloat(item[2]) || 2.0,
-                    notes: item[3] || ""
-                  };
-                });
-                return;
-              }
-            }
-          } catch (e) {
-            console.warn("Could not unpack plan from URL hash", e);
-          }
-        }
-
-        const raw = localStorage.getItem(STORAGE_KEY);
-        if (raw) {
-          const parsed = JSON.parse(raw);
-          if (typeof parsed.selectedHotelIdx === "number") selectedHotelIdx = parsed.selectedHotelIdx;
-          if (Array.isArray(parsed.activities) && parsed.activities.length > 0) activities = parsed.activities;
-          if (typeof parsed.returnToHotel === "boolean") returnToHotel = parsed.returnToHotel;
-          if (parsed.calculatedDistances) calculatedDistances = parsed.calculatedDistances;
-        }
-      } catch (e) {}
-    }
-
-    window.addEventListener("DOMContentLoaded", () => {
-      loadState();
-      initGooglePlacesScript();
-      document.getElementById("activityCountBadge").textContent = activities.length;
-      document.getElementById("returnToHotelToggle").checked = returnToHotel;
-      renderHotelCards();
-      renderItinerary();
-      renderSummaryBanner();
+        prevPoint = stop;
     });
-  </script>
+
+    const returnDist = calculateDistance(prevPoint.lat, prevPoint.lng, HOME_BASE.lat, HOME_BASE.lng);
+    const returnTransit = estimateTransit(returnDist);
+    totalTransitKm += returnDist;
+    totalTransitMins += returnTransit.mins;
+
+    html += `
+        <div class="flow-leg">
+            <div class="flow-leg-badge" style="background:#fef3c7; border-color:#fcd34d; color:#92400e;">
+                <span>${returnTransit.mode}</span>
+                <span>&bull;</span>
+                <span><strong>${returnDist.toFixed(1)} ק"מ</strong></span>
+                <span>&bull;</span>
+                <span>כ-${returnTransit.mins} דק' חזרה למלון הבית 🏨</span>
+            </div>
+        </div>
+        <div class="flow-step hotel-step">
+            <strong>🏁 סיום וחזרה למלון:</strong> ${HOME_BASE.name}
+        </div>
+    `;
+
+    timelineEl.innerHTML = html;
+
+    const totalDayHours = (totalStayHours + (totalTransitMins / 60)).toFixed(1);
+    document.getElementById('res-total-time').innerText = `${totalDayHours} שעות`;
+    document.getElementById('res-total-walk').innerText = `${totalTransitKm.toFixed(1)} ק"מ`;
+    document.getElementById('res-transit-time').innerText = `${totalTransitMins} דק'`;
+
+    resultsSec.style.display = 'block';
+    resultsSec.scrollIntoView({ behavior: 'smooth' });
+}
+
+function hideResults() {
+    document.getElementById('resultsSection').style.display = 'none';
+}
+
+function openInGoogleMaps() {
+    if (tripStops.length === 0) return;
+    const origin = encodeURIComponent(HOME_BASE.name + ", Krakow");
+    const waypoints = tripStops.map(s => encodeURIComponent(s.nameEn + ", Krakow")).join('|');
+    const mapsUrl = `https://www.google.com/maps/dir/?api=1&origin=${origin}&destination=${origin}&waypoints=${waypoints}&travelmode=walking`;
+    window.open(mapsUrl, '_blank');
+}
+
+function updateUrl() {
+    const state = tripStops.map(s => ({ id: s.id, note: s.customNote }));
+    const encoded = encodeURIComponent(JSON.stringify(state));
+    window.history.replaceState(null, null, `?trip=${encoded}`);
+}
+
+function loadTripFromUrl() {
+    const params = new URLSearchParams(window.location.search);
+    const data = params.get('trip');
+    if (!data) {
+        renderPlanningList();
+        return;
+    }
+
+    try {
+        const parsed = JSON.parse(decodeURIComponent(data));
+        tripStops = parsed.map(item => {
+            const base = ATTRACTIONS_CATALOG.find(a => a.id === item.id);
+            return base ? { ...base, customNote: item.note || base.defaultNote } : null;
+        }).filter(Boolean);
+        renderPlanningList();
+    } catch (e) {
+        console.error(e);
+        renderPlanningList();
+    }
+}
+
+function showToast(msg) {
+    const toast = document.getElementById('toast');
+    toast.innerText = msg;
+    toast.style.display = 'block';
+    setTimeout(() => { toast.style.display = 'none'; }, 2600);
+}
+
+function shareTrip() {
+    if (tripStops.length === 0) {
+        alert("אין תחנות במסלול לשיתוף.");
+        return;
+    }
+    
+    updateUrl();
+    const url = window.location.href;
+
+    let text = `🗓️ *המסלול המתוכנן לקרקוב:*\n🏨 *מלון הבית:* ${HOME_BASE.name}\n\n`;
+    tripStops.forEach((stop, i) => {
+        text += `*${i+1}. ${stop.nameEn}* (${stop.categoryHeb})\n`;
+        text += `⏱️ שהות: כ-${stop.stayHours} שעות | ⭐ דירוג: ${stop.googleRating}\n`;
+        if (stop.customNote) text += `💡 הערה: ${stop.customNote}\n`;
+        text += `\n`;
+    });
+    text += `🔗 *לצפייה במסלול המלא:* ${url}`;
+
+    navigator.clipboard.writeText(text).then(() => {
+        showToast("תקציר המסלול והקישור הועתקו ללוח!");
+    }).catch(() => {
+        prompt("העתק קישור:", url);
+    });
+}
+</script>
+
 </body>
 </html>
