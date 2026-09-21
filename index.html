@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Day Trip Flow Planner 2.0 - קטלוג מאומת</title>
+    <title>Day Trip Flow Planner 2.0 - קטלוג פולין המעודכן</title>
     <style>
         :root {
             --primary: #2563eb;
@@ -14,30 +14,58 @@
             --text-muted: #64748b;
             --border: #e2e8f0;
             --success: #16a34a;
-            --amber: #d97706;
+            --food: #ea580c;
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
         body { background: var(--bg); color: var(--text-main); padding: 20px 14px; }
-        .container { max-width: 840px; margin: 0 auto; }
+        .container { max-width: 880px; margin: 0 auto; }
 
         header { text-align: center; margin-bottom: 20px; }
         header h1 { font-size: 24px; color: var(--text-main); margin-bottom: 6px; }
         header p { color: var(--text-muted); font-size: 14px; }
 
-        .hotel-card {
-            background: var(--card-bg);
+        .base-selector-card {
+            background: #ffffff;
             border: 1px solid var(--border);
-            border-radius: 12px;
+            border-radius: 14px;
             padding: 16px;
             margin-bottom: 16px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+        }
+        .base-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+        .base-header h3 { font-size: 15px; color: #0f172a; }
+        .base-tabs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+        .base-tab {
+            padding: 10px 8px;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            background: #f8fafc;
+            cursor: pointer;
+            text-align: center;
+            font-size: 13px;
+            font-weight: 600;
+            color: #475569;
+            transition: all 0.2s;
+        }
+        .base-tab:hover { background: #f1f5f9; }
+        .base-tab.active {
+            background: #eff6ff;
+            border-color: var(--primary);
+            color: var(--primary);
+            box-shadow: 0 0 0 2px rgba(37,99,235,0.1);
+        }
+        .hotel-meta-details {
+            margin-top: 10px;
+            font-size: 12px;
+            color: var(--text-muted);
+            background: #f8fafc;
+            padding: 8px 12px;
+            border-radius: 8px;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.04);
         }
-        .hotel-info h3 { font-size: 15px; margin-bottom: 2px; }
-        .hotel-info p { font-size: 13px; color: var(--text-muted); }
 
         .planning-list { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; }
         .planning-item {
@@ -52,7 +80,10 @@
         }
         .item-head { display: flex; justify-content: space-between; align-items: center; }
         .item-title { font-weight: bold; font-size: 15px; }
-        .item-tag { font-size: 11px; background: #e0f2fe; color: #0369a1; padding: 2px 8px; border-radius: 12px; }
+        
+        .tag-group { display: flex; gap: 6px; align-items: center; }
+        .item-tag { font-size: 11px; background: #e0f2fe; color: #0369a1; padding: 2px 8px; border-radius: 12px; font-weight: 500; }
+        .food-subtag { font-size: 11px; background: #ffedd5; color: #c2410c; border: 1px solid #fed7aa; padding: 2px 8px; border-radius: 12px; font-weight: bold; }
         .item-sub { font-size: 12px; color: var(--text-muted); }
 
         .note-input {
@@ -200,7 +231,7 @@
         .modal-content {
             background: var(--card-bg);
             border-radius: 16px;
-            max-width: 680px;
+            max-width: 700px;
             margin: 24px auto;
             padding: 20px;
             box-shadow: 0 10px 25px rgba(0,0,0,0.2);
@@ -240,7 +271,7 @@
             gap: 6px;
         }
         .catalog-card.already-added { background: #f8fafc; opacity: 0.55; }
-        .catalog-card-header { display: flex; justify-content: space-between; font-weight: bold; }
+        .catalog-card-header { display: flex; justify-content: space-between; align-items: center; font-weight: bold; }
         .btn-select {
             background: var(--primary);
             color: white;
@@ -275,33 +306,47 @@
 <div class="container">
     <header>
         <h1>🧭 Day Trip Flow Planner 2.0</h1>
-        <p>תכנון יום טיול בקרקוב עם קטלוג מאומת ומיון מרחק דינמי</p>
+        <p>תכנון יום טיול מודולרי: קרקוב וזאקופנה (קטלוג מעודכן ומאומת)</p>
     </header>
 
-    <!-- מלון הבית -->
-    <div class="hotel-card">
-        <div class="hotel-info">
-            <h3>🏨 מלון הבית (בסיס היציאה והחזרה)</h3>
-            <p id="hotel-name">Sleeping in Krakow Main Market (Sławkowska 4/9)</p>
+    <!-- בורר בסיס לינה ומלון -->
+    <div class="base-selector-card">
+        <div class="base-header">
+            <h3>📍 בחירת בסיס הלינה הנוכחי:</h3>
+            <span id="baseRegionBadge" style="font-size:12px; background:#e0f2fe; color:#0369a1; padding:3px 10px; border-radius:12px; font-weight:bold;">קרקוב</span>
         </div>
-        <span style="font-size: 12px; background: #f1f5f9; color: #475569; padding: 4px 10px; border-radius: 6px; font-weight: bold;">בסיס קבוע 📍</span>
+        <div class="base-tabs">
+            <button class="base-tab active" id="tab-base-1" onclick="switchBase(1)">
+                בסיס 1: קרקוב<br><span style="font-size:11px; font-weight:normal;">חלק ראשון</span>
+            </button>
+            <button class="base-tab" id="tab-base-2" onclick="switchBase(2)">
+                בסיס 2: זאקופנה<br><span style="font-size:11px; font-weight:normal;">קושטליסקו (הרים)</span>
+            </button>
+            <button class="base-tab" id="tab-base-3" onclick="switchBase(3)">
+                בסיס 3: קרקוב<br><span style="font-size:11px; font-weight:normal;">חזרה וסיום</span>
+            </button>
+        </div>
+        <div class="hotel-meta-details">
+            <span id="currentHotelDisplay">🏨 <strong>מלון נוכחי:</strong> Sleeping in Krakow Main Market (Sławkowska 4/9)</span>
+            <span id="catalogCountDisplay" style="color:var(--primary); font-weight:bold;">50 מקומות זמינים</span>
+        </div>
     </div>
 
     <!-- רשימת תחנות בתכנון -->
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-        <span style="font-weight: bold; font-size: 16px;">תחנות שנבחרו להיום:</span>
-        <span id="plan-counter" style="font-size: 13px; color: var(--text-muted);">0 אטרקציות</span>
+        <span style="font-weight: bold; font-size: 16px;">מקומות שנבחרו להיום:</span>
+        <span id="plan-counter" style="font-size: 13px; color: var(--text-muted);">0 מקומות</span>
     </div>
 
     <div class="planning-list" id="planningList">
         <div style="text-align: center; color: var(--text-muted); padding: 30px; background: white; border-radius: 12px; border: 1px dashed var(--border);" id="empty-state">
-            הרשימה ריקה כרגע. לחצו על "+ הוסף אטרקציה" לבחירה מתוך 38 האטרקציות המאומתות בקטלוג.
+            הרשימה ריקה כרגע. לחצו על "+ הוסף מהקטלוג" לבחירת מקומות.
         </div>
     </div>
 
     <!-- כפתורי פעולה -->
     <div class="actions-grid">
-        <button class="btn btn-add" onclick="openModal()">+ הוסף אטרקציה</button>
+        <button class="btn btn-add" onclick="openModal()">+ הוסף מהקטלוג</button>
         <button class="btn btn-start" onclick="calculateAndShowPlan()">🚀 צא לדרך</button>
         <button class="btn btn-share" onclick="shareTrip()">🔗 שתף מסלול</button>
     </div>
@@ -340,7 +385,7 @@
 <div class="modal" id="catalogModal">
     <div class="modal-content">
         <div class="modal-header">
-            <h3>בחר אטרקציה מהקטלוג (38 אפשרויות מאומתות)</h3>
+            <h3 id="modalTitle">בחר מהקטלוג</h3>
             <button class="close-btn" onclick="closeModal()">&times;</button>
         </div>
         <div class="modal-reference-bar" id="modalRefText"></div>
@@ -352,737 +397,115 @@
 <div class="toast" id="toast">הקישור הועתק ללוח!</div>
 
 <script>
-const HOME_BASE = {
-    name: "Sleeping in Krakow Main Market",
-    lat: 50.0617,
-    lng: 19.9373
+const HOME_BASES = {
+    1: { id: 1, region: "krakow", name: "Sleeping in Krakow Main Market", address: "Sławkowska 4/9, Old Town, Kraków", lat: 50.0617, lng: 19.9373 },
+    2: { id: 2, region: "zakopane", name: "Rezydencja & SPA Czarny Niedźwiedź", address: "Stanisława Nędzy-Kubińca 50, Kościelisko / Zakopane", lat: 49.2890, lng: 19.8940 },
+    3: { id: 3, region: "krakow", name: "Sleeping in Krakow Main Market", address: "Sławkowska 4/9, Old Town, Kraków", lat: 50.0617, lng: 19.9373 }
 };
 
-// 38 האטרקציות והמסעדות מקובץ האקסל המאומת
-const ATTRACTIONS_CATALOG = [
-  {
-    "id": "womai",
-    "category": "Science & Senses",
-    "categoryHeb": "מדע וחושים",
-    "nameEn": "WOMAI Sensory Centre",
-    "descHeb": "מרכז חושים אינטראקטיבי; חוויית החושך מתאימה יותר לילדים גדולים, מומלץ לבדוק את סוג התערוכה מראש.",
-    "googleRating": 5.0,
-    "googleReviewCount": "5.4K+",
-    "location": "Pawia 34, Kraków",
-    "lat": 50.069,
-    "lng": 19.945,
-    "distanceFromHotelKm": 1.0,
-    "familyCost": "160–200 zł",
-    "costType": "Estimated family 2+2",
-    "stayHours": 1.5,
-    "defaultNote": "לבדוק התאמה לגיל הילדים",
-    "officialUrl": "https://womai.pl/",
-    "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=WOMAI+Sensory+Centre+Krakow"
-  },
-  {
-    "id": "lem_garden",
-    "category": "Science & Senses",
-    "categoryHeb": "מדע וחושים",
-    "nameEn": "Stanislaw Lem Garden of Experiences",
-    "descHeb": "פארק מדעי פתוח עם מתקני פיזיקה וניסויים; בחירה מצוינת ביום שמש.",
-    "googleRating": 4.6,
-    "googleReviewCount": "",
-    "location": "al. Pokoju 68, Kraków",
-    "lat": 50.0675,
-    "lng": 20.0047,
-    "distanceFromHotelKm": 4.9,
-    "familyCost": "70–90 zł",
-    "costType": "Estimated family 2+2",
-    "stayHours": 2.5,
-    "defaultNote": "עדיף במזג אוויר יבש",
-    "officialUrl": "https://www.ogroddoswiadczen.pl/",
-    "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=Stanislaw+Lem+Garden+of+Experiences+Krakow"
-  },
-  {
-    "id": "mit",
-    "category": "Science & Senses",
-    "categoryHeb": "מדע וחושים",
-    "nameEn": "Museum of Engineering and Technology",
-    "descHeb": "מוזיאון בקז'ימייז' עם מכונות, תחבורה וטכנולוגיה ואזורים אינטראקטיביים לילדים.",
-    "googleRating": 4.6,
-    "googleReviewCount": "",
-    "location": "św. Wawrzyńca 15, Kraków",
-    "lat": 50.0507,
-    "lng": 19.9468,
-    "distanceFromHotelKm": 1.4,
-    "familyCost": "95 zł",
-    "costType": "Family ticket estimate",
-    "stayHours": 2.0,
-    "defaultNote": "מתאים לשילוב עם קז'ימייז'",
-    "officialUrl": "https://mit.krakow.pl/",
-    "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=Museum+of+Engineering+and+Technology+Krakow"
-  },
-  {
-    "id": "arcade_museum",
-    "category": "Games & Fun",
-    "categoryHeb": "משחקים ואקשן",
-    "nameEn": "Krakow Arcade Museum",
-    "descHeb": "מעל 150 מכונות ארקייד רטרו למשחק חופשי בכרטיס אחד; חוויה מושלמת לכל המשפחה.",
-    "googleRating": 4.9,
-    "googleReviewCount": "3.3K+",
-    "location": "Centralna 41a, Kraków",
-    "lat": 50.0631,
-    "lng": 20.0076,
-    "distanceFromHotelKm": 5.0,
-    "familyCost": "170 zł",
-    "costType": "Family 2+2",
-    "stayHours": 2.5,
-    "defaultNote": "מושלם לשעות אחה\"צ או יום גשום",
-    "officialUrl": "https://krakowarcademuseum.com/",
-    "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=Krakow+Arcade+Museum"
-  },
-  {
-    "id": "pinball_museum",
-    "category": "Games & Fun",
-    "categoryHeb": "משחקים ואקשן",
-    "nameEn": "Krakow Pinball Museum",
-    "descHeb": "עשרות מכונות פליפר ומשחקי רטרו במרכז העיר; מיקום נוח מאוד ומשחק חופשי.",
-    "googleRating": 4.8,
-    "googleReviewCount": "",
-    "location": "Stradomska 15, Kraków",
-    "lat": 50.0545,
-    "lng": 19.9398,
-    "distanceFromHotelKm": 0.8,
-    "familyCost": "140–160 zł",
-    "costType": "Estimated family 2+2",
-    "stayHours": 1.5,
-    "defaultNote": "קרוב מאוד לטירת ואוול ולמלון",
-    "officialUrl": "https://krakowpinball.com/",
-    "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=Krakow+Pinball+Museum"
-  },
-  {
-    "id": "laserpark",
-    "category": "Games & Fun",
-    "categoryHeb": "משחקים ואקשן",
-    "nameEn": "LaserPark Kraków",
-    "descHeb": "לייזר טאג ומבוך לייזר באווירה עתידנית; מתאים במיוחד לפריקת אנרגיה קבוצתית.",
-    "googleRating": 4.8,
-    "googleReviewCount": "",
-    "location": "Zabłocie 20/22, Kraków",
-    "lat": 50.0485,
-    "lng": 19.9634,
-    "distanceFromHotelKm": 2.4,
-    "familyCost": "120–180 zł",
-    "costType": "Per game / combo",
-    "stayHours": 1.5,
-    "defaultNote": "כדאי להזמין סבב מראש בסופ\"ש",
-    "officialUrl": "https://laserpark.pl/",
-    "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=LaserPark+Krakow"
-  },
-  {
-    "id": "gojump_sikorki",
-    "category": "Games & Fun",
-    "categoryHeb": "משחקים ואקשן",
-    "nameEn": "GOjump MEGAPARK (Sikorki)",
-    "descHeb": "פארק טרמפולינות ומתנפחים ענק עם מסלולי נינג'ה ובריכות ספוג; מעולה לילדים.",
-    "googleRating": 4.6,
-    "googleReviewCount": "4.4K+",
-    "location": "Sikorki 23, Kraków",
-    "lat": 50.0674,
-    "lng": 20.0245,
-    "distanceFromHotelKm": 6.3,
-    "familyCost": "160–220 zł",
-    "costType": "Hourly tickets",
-    "stayHours": 2.0,
-    "defaultNote": "חובה גרביים מונעות החלקה",
-    "officialUrl": "https://krakow.gojump.pl/",
-    "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=GOjump+MEGAPARK+Sikorki+Krakow"
-  },
-  {
-    "id": "wieliczka",
-    "category": "Must-See & Nature",
-    "categoryHeb": "טבע ואתרי חובה",
-    "nameEn": "Wieliczka Salt Mine",
-    "descHeb": "מכרות המלח המפורסמים - אולמות ענק מרהיבים, קפלת מלח תת-קרקעית ואגמים קסומים.",
-    "googleRating": 4.7,
-    "googleReviewCount": "130K+",
-    "location": "Daniłowicza 10, Wieliczka",
-    "lat": 49.9831,
-    "lng": 20.0557,
-    "distanceFromHotelKm": 12.4,
-    "familyCost": "380–430 zł",
-    "costType": "Family ticket (PL/EN guide)",
-    "stayHours": 3.0,
-    "defaultNote": "חובה להזמין שעה מראש; נעליים נוחות ועליונית",
-    "officialUrl": "https://www.wieliczka-saltmine.com/",
-    "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=Wieliczka+Salt+Mine"
-  },
-  {
-    "id": "wawel",
-    "category": "Must-See & Nature",
-    "categoryHeb": "טבע ואתרי חובה",
-    "nameEn": "Wawel Royal Castle & Grounds",
-    "descHeb": "טירת המלכים של קרקוב - חצרות יפהפיות, תצפית לנהר הוויסלה ופסל הדרקון היורק אש.",
-    "googleRating": 4.8,
-    "googleReviewCount": "",
-    "location": "Wawel 5, Kraków",
-    "lat": 50.054,
-    "lng": 19.9354,
-    "distanceFromHotelKm": 0.9,
-    "familyCost": "Free grounds / 80–140 zł exhibitions",
-    "costType": "Grounds free, exhibitions vary",
-    "stayHours": 2.0,
-    "defaultNote": "טיול רגלי קל מהמלון, הילדים יאהבו את הדרקון",
-    "officialUrl": "https://wawel.krakow.pl/",
-    "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=Wawel+Royal+Castle+Krakow"
-  },
-  {
-    "id": "krakow_zoo",
-    "category": "Must-See & Nature",
-    "categoryHeb": "טבע ואתרי חובה",
-    "nameEn": "Krakow Zoo",
-    "descHeb": "גן חיות נעים ומיוער ביער וולסקי; מתאים מאוד לטיול משפחתי רגוע בטבע.",
-    "googleRating": 4.4,
-    "googleReviewCount": "",
-    "location": "Kasy Oszczędności Miasta Krakowa 14, Kraków",
-    "lat": 50.0543,
-    "lng": 19.8536,
-    "distanceFromHotelKm": 6.0,
-    "familyCost": "120–140 zł",
-    "costType": "Estimated family 2+2",
-    "stayHours": 3.0,
-    "defaultNote": "יש עליות וירידות, כדאי עגלה לילדים קטנים",
-    "officialUrl": "https://zoo-krakow.pl/",
-    "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=Krakow+Zoo"
-  },
-  {
-    "id": "ojcow_park",
-    "category": "Must-See & Nature",
-    "categoryHeb": "טבע ואתרי חובה",
-    "nameEn": "Ojców National Park",
-    "descHeb": "הפארק הלאומי הקרוב לקרקוב עם תצורות סלע מיוחדות, מערות, טירות ומסלולי טבע קלים.",
-    "googleRating": 4.8,
-    "googleReviewCount": "",
-    "location": "Ojców, Małopolskie",
-    "lat": 50.2104,
-    "lng": 19.8317,
-    "distanceFromHotelKm": 18.2,
-    "familyCost": "Free entry / parking & caves extra",
-    "costType": "Park free, caves ~60 zł",
-    "stayHours": 3.5,
-    "defaultNote": "דורש רכב, טיול יום נהדר במזג אוויר טוב",
-    "officialUrl": "https://www.ojcowskiparknarodowy.pl/",
-    "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=Ojcow+National+Park"
-  },
-  {
-    "id": "krakus_mound",
-    "category": "Must-See & Nature",
-    "categoryHeb": "טבע ואתרי חובה",
-    "nameEn": "Krakus Mound (Kopiec Krakusa)",
-    "descHeb": "תל היסטורי עם תצפית פנורמית של 360 מעלות על כל העיר; נקודה נהדרת לפיקניק ושקיעה.",
-    "googleRating": 4.7,
-    "googleReviewCount": "",
-    "location": "Franciszkka Maryewskiego, Kraków",
-    "lat": 50.038,
-    "lng": 19.9583,
-    "distanceFromHotelKm": 3.0,
-    "familyCost": "Free",
-    "costType": "Free public access",
-    "stayHours": 1.0,
-    "defaultNote": "כדאי להגיע לקראת שקיעה ביום בהיר",
-    "officialUrl": "",
-    "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=Krakus+Mound+Krakow"
-  },
-  {
-    "id": "planty_park",
-    "category": "Must-See & Nature",
-    "categoryHeb": "טבע ואתרי חובה",
-    "nameEn": "Planty Park Ring",
-    "descHeb": "טבעת הגנים הירוקה המקיפה את העיר העתיקה; שבילים נעימים וגני שעשועים במרחק פסיעה מהמלון.",
-    "googleRating": 4.8,
-    "googleReviewCount": "",
-    "location": "Old Town ring, Kraków",
-    "lat": 50.063,
-    "lng": 19.94,
-    "distanceFromHotelKm": 0.2,
-    "familyCost": "Free",
-    "costType": "Free public park",
-    "stayHours": 1.0,
-    "defaultNote": "מצוין להפוגה קצרה עם הילדים בין פעילויות",
-    "officialUrl": "",
-    "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=Planty+Park+Krakow"
-  },
-  {
-    "id": "galeria_krakowska",
-    "category": "Shopping & Outlets",
-    "categoryHeb": "קניות ואאוטלט",
-    "nameEn": "Galeria Krakowska",
-    "descHeb": "קניון ענק ומודרני הצמוד לתחנת הרכבת המרכזית; מרחק הליכה קצר מהמלון עם כל המותגים.",
-    "googleRating": 4.5,
-    "googleReviewCount": "70K+",
-    "location": "Pawia 5, Kraków",
-    "lat": 50.067,
-    "lng": 19.9458,
-    "distanceFromHotelKm": 0.8,
-    "familyCost": "Free entry",
-    "costType": "Mall entry free",
-    "stayHours": 2.5,
-    "defaultNote": "הכי נוח ונגיש ברגל מהעיר העתיקה",
-    "officialUrl": "https://www.galeriakrakowska.pl/",
-    "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=Galeria+Krakowska"
-  },
-  {
-    "id": "galeria_kazimierz",
-    "category": "Shopping & Outlets",
-    "categoryHeb": "קניות ואאוטלט",
-    "nameEn": "Galeria Kazimierz",
-    "descHeb": "קניון נעים ומרווח ברובע היהודי עם קולנוע, חנויות אופנה ומתחם אוכל רגוע.",
-    "googleRating": 4.4,
-    "googleReviewCount": "",
-    "location": "Podgórska 34, Kraków",
-    "lat": 50.0531,
-    "lng": 19.9575,
-    "distanceFromHotelKm": 1.7,
-    "familyCost": "Free entry",
-    "costType": "Mall entry free",
-    "stayHours": 2.0,
-    "defaultNote": "משתלב נהדר עם ביקור ברובע קז'ימייז'",
-    "officialUrl": "https://galeriakazimierz.com.pl/",
-    "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=Galeria+Kazimierz+Krakow"
-  },
-  {
-    "id": "bonarka",
-    "category": "Shopping & Outlets",
-    "categoryHeb": "קניות ואאוטלט",
-    "nameEn": "Bonarka City Center",
-    "descHeb": "אחד הקניונים הגדולים ביותר בקרקוב; מגוון חנויות ענק, פריימרק ומתחמי שעשועים.",
-    "googleRating": 4.5,
-    "googleReviewCount": "",
-    "location": "Kamieńskiego 11, Kraków",
-    "lat": 50.0275,
-    "lng": 19.9535,
-    "distanceFromHotelKm": 4.0,
-    "familyCost": "Free entry",
-    "costType": "Mall entry free",
-    "stayHours": 3.0,
-    "defaultNote": "מתאים לחצי יום קניות רציני (מונית/אובר)",
-    "officialUrl": "https://www.bonarkacitycenter.pl/",
-    "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=Bonarka+City+Center+Krakow"
-  },
-  {
-    "id": "serenada",
-    "category": "Shopping & Outlets",
-    "categoryHeb": "קניות ואאוטלט",
-    "nameEn": "Centrum Serenada",
-    "descHeb": "קניון מודרני בצפון העיר הצמוד לפארק המים (Park Wodny); שילוב מצוין לבילוי וקניות.",
-    "googleRating": 4.5,
-    "googleReviewCount": "",
-    "location": "al. Bora-Komorowskiego 41, Kraków",
-    "lat": 50.089,
-    "lng": 19.9839,
-    "distanceFromHotelKm": 4.5,
-    "familyCost": "Free entry",
-    "costType": "Mall entry free",
-    "stayHours": 2.0,
-    "defaultNote": "צמוד לפארק המים המקורה",
-    "officialUrl": "https://centrumserenada.pl/",
-    "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=Centrum+Serenada+Krakow"
-  },
-  {
-    "id": "factory_outlet",
-    "category": "Shopping & Outlets",
-    "categoryHeb": "קניות ואאוטלט",
-    "nameEn": "Factory Krakow Outlet",
-    "descHeb": "מתחם האאוטלט המוביל של קרקוב עם מותגי אופנה וספורט בהנחות קבועות.",
-    "googleRating": 4.3,
-    "googleReviewCount": "19K+",
-    "location": "Prof. Adama Rożańskiego 32, Modlniczka",
-    "lat": 50.1042,
-    "lng": 19.8431,
-    "distanceFromHotelKm": 8.3,
-    "familyCost": "Free entry",
-    "costType": "Outlet entry free",
-    "stayHours": 2.5,
-    "defaultNote": "מחוץ לעיר, מומלץ להגיע ברכב או מונית",
-    "officialUrl": "https://krakow.factory.pl/",
-    "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=Factory+Krakow+Outlet"
-  },
-  {
-    "id": "sukiennice",
-    "category": "Shopping & Outlets",
-    "categoryHeb": "קניות ואאוטלט",
-    "nameEn": "Sukiennice (Cloth Hall)",
-    "descHeb": "אולם הבדים ההיסטורי בלב הכיכר המרכזית; שוק מזכרות, תכשיטי ענבר ועבודות יד.",
-    "googleRating": 4.7,
-    "googleReviewCount": "",
-    "location": "Rynek Główny 1/3, Kraków",
-    "lat": 50.0617,
-    "lng": 19.9373,
-    "distanceFromHotelKm": 0.0,
-    "familyCost": "Free entry to stalls",
-    "costType": "Market walk free",
-    "stayHours": 0.5,
-    "defaultNote": "ממש מתחת למלון, מעולה לקניית מזכרות קטנות",
-    "officialUrl": "",
-    "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=Sukiennice+Cloth+Hall+Krakow"
-  },
-  {
-    "id": "fikołki_bonarka",
-    "category": "Indoor Playgrounds",
-    "categoryHeb": "משחקיות וטרמפולינות",
-    "nameEn": "Fikołki Sala Zabaw (Bonarka)",
-    "descHeb": "משחקיית ענק מושקעת לילדים עם מבוכי טיפוס, מגלשות וקירות טיפוס בתוך קניון בונארקה.",
-    "googleRating": 4.6,
-    "googleReviewCount": "",
-    "location": "Bonarka City Center, Kraków",
-    "lat": 50.0275,
-    "lng": 19.9535,
-    "distanceFromHotelKm": 4.0,
-    "familyCost": "70–120 zł",
-    "costType": "Per child pass",
-    "stayHours": 2.0,
-    "defaultNote": "ההורים יכולים לשתות קפה בזמן שהילדים משחקים",
-    "officialUrl": "https://fikolki.pl/",
-    "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=Fikolki+Bonarka+Krakow"
-  },
-  {
-    "id": "animatria",
-    "category": "Indoor Playgrounds",
-    "categoryHeb": "משחקיות וטרמפולינות",
-    "nameEn": "Animatria Sala Zabaw",
-    "descHeb": "משחקייה איכותית ונעימה עם פינות משחק מגוונות ופעילויות מותאמות לגילאי 3 עד 8.",
-    "googleRating": 4.7,
-    "googleReviewCount": "",
-    "location": "Kraków",
-    "lat": 50.045,
-    "lng": 19.97,
-    "distanceFromHotelKm": 3.0,
-    "familyCost": "50–80 zł",
-    "costType": "Hourly tickets",
-    "stayHours": 1.5,
-    "defaultNote": "מעולה לקטנטנים",
-    "officialUrl": "",
-    "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=Animatria+Sala+Zabaw+Krakow"
-  },
-  {
-    "id": "park_wodny",
-    "category": "Indoor Playgrounds",
-    "categoryHeb": "משחקיות וטרמפולינות",
-    "nameEn": "Park Wodny Kraków (Water Park)",
-    "descHeb": "פארק מים מקורה מהגדולים בפולין עם מגלשות ענק, בריכות זרמים ומתחם ייעודי לפעוטות.",
-    "googleRating": 4.4,
-    "googleReviewCount": "",
-    "location": "Dobrego Pasterza 126, Kraków",
-    "lat": 50.0898,
-    "lng": 19.9823,
-    "distanceFromHotelKm": 4.5,
-    "familyCost": "160–220 zł",
-    "costType": "Family 2+2 (2-3 hours)",
-    "stayHours": 2.5,
-    "defaultNote": "להביא בגדי ים, מגבות וכפכפים",
-    "officialUrl": "https://www.parkwodny.pl/",
-    "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=Park+Wodny+Krakow"
-  },
-  {
-    "id": "hop_la_play",
-    "category": "Indoor Playgrounds",
-    "categoryHeb": "משחקיות וטרמפולינות",
-    "nameEn": "Klockoland / Lego Experience Center",
-    "descHeb": "מרכז אינטראקטיבי של בנייה, רובוטיקה ומשחק בלבני לגו; מפתח יצירתיות וחשיבה.",
-    "googleRating": 4.5,
-    "googleReviewCount": "",
-    "location": "Mikołajska 13, Kraków",
-    "lat": 50.0612,
-    "lng": 19.9415,
-    "distanceFromHotelKm": 0.3,
-    "familyCost": "80–110 zł",
-    "costType": "Estimated family 2+2",
-    "stayHours": 1.5,
-    "defaultNote": "מרחק 3 דקות הליכה מהמלון",
-    "officialUrl": "",
-    "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=Klockoland+Krakow"
-  },
-  {
-    "id": "goair_airpark",
-    "category": "Indoor Playgrounds",
-    "categoryHeb": "משחקיות וטרמפולינות",
-    "nameEn": "GOair Powietrzny Miasto",
-    "descHeb": "עיר מתנפחים מקורה ענקית עם מסלולי מכשולים ומגלשות ענק; צמוד ל-GOjump.",
-    "googleRating": 4.6,
-    "googleReviewCount": "",
-    "location": "Sikorki 23, Kraków",
-    "lat": 50.0674,
-    "lng": 20.0245,
-    "distanceFromHotelKm": 6.3,
-    "familyCost": "150–200 zł",
-    "costType": "Inflatable park passes",
-    "stayHours": 2.0,
-    "defaultNote": "כרטיס משולב אפשרי עם GOjump",
-    "officialUrl": "https://krakow.goair.com.pl/",
-    "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=GOair+Powietrzne+Miasto+Krakow"
-  },
-  {
-    "id": "pod_wawelem",
-    "category": "Family Food",
-    "categoryHeb": "מסעדות משפחתיות",
-    "nameEn": "Pod Wawelem Kompania Kuflowa",
-    "descHeb": "מסעדה פולנית מפורסמת ושמחה מול ואוול עם מנות ענקיות, תפריט ילדים ואווירה נהדרת.",
-    "googleRating": 4.6,
-    "googleReviewCount": "22K+",
-    "location": "św. Gertrudy 26-29, Kraków",
-    "lat": 50.0547,
-    "lng": 19.9392,
-    "distanceFromHotelKm": 0.8,
-    "familyCost": "160–240 zł",
-    "costType": "Family meal 2+2",
-    "stayHours": 1.5,
-    "defaultNote": "מנות ענקיות לחלוקה בין המשפחות",
-    "officialUrl": "https://podwawelem.eu/",
-    "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=Pod+Wawelem+Kompania+Kuflowa+Krakow"
-  },
-  {
-    "id": "morskie_oko",
-    "category": "Family Food",
-    "categoryHeb": "מסעדות משפחתיות",
-    "nameEn": "Restauracja Morskie Oko",
-    "descHeb": "מסעדה בעיצוב בקתת עץ הררית היישר מזקופנה; מוזיקה חיה עממית ואוכל פולני מסורתי.",
-    "googleRating": 4.6,
-    "googleReviewCount": "",
-    "location": "Szczepański 8, Kraków",
-    "lat": 50.0633,
-    "lng": 19.9362,
-    "distanceFromHotelKm": 0.2,
-    "familyCost": "180–260 zł",
-    "costType": "Family meal 2+2",
-    "stayHours": 1.5,
-    "defaultNote": "מרחק 2 דקות הליכה מהמלון",
-    "officialUrl": "https://morskieoko.krakow.pl/",
-    "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=Restauracja+Morskie+Oko+Krakow"
-  },
-  {
-    "id": "chlopskie_jadlo",
-    "category": "Family Food",
-    "categoryHeb": "מסעדות משפחתיות",
-    "nameEn": "Chłopskie Jadło Kraków",
-    "descHeb": "אוכל פולני כפרי וחמים - פירוגי מגוונים, מרקי חורף ומנות מסורתיות שילדים אוהבים.",
-    "googleRating": 4.4,
-    "googleReviewCount": "",
-    "location": "Grodzka 9, Kraków",
-    "lat": 50.0589,
-    "lng": 19.938,
-    "distanceFromHotelKm": 0.3,
-    "familyCost": "140–200 zł",
-    "costType": "Family meal 2+2",
-    "stayHours": 1.5,
-    "defaultNote": "קרוב מאוד לכיכר המרכזית",
-    "officialUrl": "https://chlopskiejadlo.pl/",
-    "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=Chlopskie+Jadlo+Grodzka+Krakow"
-  },
-  {
-    "id": "ck_browar",
-    "category": "Family Food",
-    "categoryHeb": "מסעדות משפחתיות",
-    "nameEn": "CK Browar",
-    "descHeb": "מסעדת מרתף גדולה ומרווחת בסגנון אוסטרו-הונגרי עם מנות בשר עשירות ואווירה שמחה.",
-    "googleRating": 4.4,
-    "googleReviewCount": "",
-    "location": "Podwale 6-7, Kraków",
-    "lat": 50.0636,
-    "lng": 19.9329,
-    "distanceFromHotelKm": 0.4,
-    "familyCost": "170–250 zł",
-    "costType": "Family meal 2+2",
-    "stayHours": 1.5,
-    "defaultNote": "מתאימה מאוד לקבוצות גדולות",
-    "officialUrl": "https://ckbrowar.pl/",
-    "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=CK+Browar+Krakow"
-  },
-  {
-    "id": "pizza_garden",
-    "category": "Casual & Pizza",
-    "categoryHeb": "קז'ואל ופיצה",
-    "nameEn": "Pizza Garden",
-    "descHeb": "פיצה נאפוליטנית אמיתית עם בצק אוורירי ומרכיבים איטלקיים מעולים; מושלם לארוחה עם ילדים.",
-    "googleRating": 4.7,
-    "googleReviewCount": "",
-    "location": "Rakowicka 1, Kraków",
-    "lat": 50.0673,
-    "lng": 19.9485,
-    "distanceFromHotelKm": 1.0,
-    "familyCost": "100–150 zł",
-    "costType": "Pizzas for family",
-    "stayHours": 1.0,
-    "defaultNote": "פתרון קל וטעים שכולם אוהבים",
-    "officialUrl": "",
-    "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=Pizza+Garden+Rakowicka+Krakow"
-  },
-  {
-    "id": "ti_amo_ti",
-    "category": "Casual & Pizza",
-    "categoryHeb": "קז'ואל ופיצה",
-    "nameEn": "Pizzeria Ti Amo Ti",
-    "descHeb": "פיצרייה איטלקית אותנטית וקטנה עם פיצות דקות וטריות מהתנור במחירים נוחים.",
-    "googleRating": 4.7,
-    "googleReviewCount": "",
-    "location": "Karmelicka 10, Kraków",
-    "lat": 50.0655,
-    "lng": 19.9324,
-    "distanceFromHotelKm": 0.5,
-    "familyCost": "90–140 zł",
-    "costType": "Pizzas for family",
-    "stayHours": 1.0,
-    "defaultNote": "מרחק קצר ברגל מחוץ לחומות העיר",
-    "officialUrl": "",
-    "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=Pizzeria+Ti+Amo+Ti+Krakow"
-  },
-  {
-    "id": "moa_burger",
-    "category": "Casual & Burgers",
-    "categoryHeb": "קז'ואל והמבורגרים",
-    "nameEn": "MoaBurger Kraków",
-    "descHeb": "המבורגרים בסגנון ניו-זילנדי עם קציצות איכותיות ומנות צ'יפס גדולות שילדים מחסלים.",
-    "googleRating": 4.6,
-    "googleReviewCount": "",
-    "location": "Mikołajska 3, Kraków",
-    "lat": 50.0609,
-    "lng": 19.9403,
-    "distanceFromHotelKm": 0.2,
-    "familyCost": "110–160 zł",
-    "costType": "Burgers & fries for family",
-    "stayHours": 1.0,
-    "defaultNote": "3 דקות הליכה מהמלון, שירות מהיר",
-    "officialUrl": "https://moaburger.com/",
-    "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=MoaBurger+Mikolajska+Krakow"
-  },
-  {
-    "id": "good_lood",
-    "category": "Ice Cream",
-    "categoryHeb": "גלידה",
-    "nameEn": "Good Lood (Main Square / Kazimierz)",
-    "descHeb": "רשת הגלידריות הפופולרית ביותר בקרקוב; טעמים טבעיים מתחלפים כל יום ומנות נדיבות.",
-    "googleRating": 4.8,
-    "googleReviewCount": "",
-    "location": "Multiple spots (e.g. Plac Nowy / Basztowa)",
-    "lat": 50.065,
-    "lng": 19.939,
-    "distanceFromHotelKm": 0.4,
-    "familyCost": "30–50 zł",
-    "costType": "Ice cream scoops for 4",
-    "stayHours": 0.5,
-    "defaultNote": "חובה לנסות את טעם ה-Karmel z różową solą (קרמל מלוח)",
-    "officialUrl": "https://goodlood.com/",
-    "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=Good+Lood+Krakow"
-  },
-  {
-    "id": "lody_starowislna",
-    "category": "Ice Cream",
-    "categoryHeb": "גלידה",
-    "nameEn": "Pracownia Cukiernicza (Lody Starowiślna)",
-    "descHeb": "הגלידריה הנוסטלגית המפורסמת של קרקוב; תמיד יש תור, אך הגלידה המסורתית שווה כל רגע.",
-    "googleRating": 4.7,
-    "googleReviewCount": "",
-    "location": "Starowiślna 83, Kraków",
-    "lat": 50.0515,
-    "lng": 19.9485,
-    "distanceFromHotelKm": 1.4,
-    "familyCost": "25–40 zł",
-    "costType": "Traditional scoops",
-    "stayHours": 0.5,
-    "defaultNote": "תשלום במזומן בלבד לעיתים קרובות",
-    "officialUrl": "",
-    "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=Pracownia+Cukiernicza+Starowislna+Krakow"
-  },
-  {
-    "id": "cafe_camelot",
-    "category": "Cafes & Sweets",
-    "categoryHeb": "בתי קפה וקינוחים",
-    "nameEn": "Café Camelot",
-    "descHeb": "בית קפה קסום וציורי בסמטה עתיקה עם עוגות ביתיות מדהימות ואווירה חמה.",
-    "googleRating": 4.6,
-    "googleReviewCount": "",
-    "location": "św. Tomasza 17, Kraków",
-    "lat": 50.0628,
-    "lng": 19.9378,
-    "distanceFromHotelKm": 0.1,
-    "familyCost": "60–100 zł",
-    "costType": "Cakes & drinks",
-    "stayHours": 1.0,
-    "defaultNote": "דקה אחת ברגל מהמלון, מעולה לקפה ועוגה",
-    "officialUrl": "",
-    "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=Cafe+Camelot+Krakow"
-  },
-  {
-    "id": "nowa_prowincja",
-    "category": "Cafes & Sweets",
-    "categoryHeb": "בתי קפה וקינוחים",
-    "nameEn": "Nowa Prowincja",
-    "descHeb": "בית קפה ספרותי ואינטימי המפורסם בשוקו החם הסמיך שלו ובעוגת התפוחים המשובחת.",
-    "googleRating": 4.7,
-    "googleReviewCount": "",
-    "location": "Bracka 3-5, Kraków",
-    "lat": 50.0597,
-    "lng": 19.9366,
-    "distanceFromHotelKm": 0.3,
-    "familyCost": "50–90 zł",
-    "costType": "Hot chocolate & cakes",
-    "stayHours": 1.0,
-    "defaultNote": "הילדים ישתגעו על השוקו הסמיך",
-    "officialUrl": "",
-    "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=Nowa+Prowincja+Bracka+Krakow"
-  },
-  {
-    "id": "cukiernia_michalik",
-    "category": "Cafes & Sweets",
-    "categoryHeb": "בתי קפה וקינוחים",
-    "nameEn": "Jama Michalika",
-    "descHeb": "בית קפה היסטורי ויפהפה מסוף המאה ה-19 עם ויטראז'ים, ציורי קיר ומאפים מסורתיים.",
-    "googleRating": 4.3,
-    "googleReviewCount": "",
-    "location": "Floriańska 45, Kraków",
-    "lat": 50.0645,
-    "lng": 19.9405,
-    "distanceFromHotelKm": 0.4,
-    "familyCost": "70–110 zł",
-    "costType": "Coffee & pastry",
-    "stayHours": 1.0,
-    "defaultNote": "חוויה תרבותית נוסטלגית ברחוב פלוריאנסקה",
-    "officialUrl": "https://jamamichalika.pl/",
-    "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=Jama+Michalika+Krakow"
-  },
-  {
-    "id": "zapiekanki_plac_nowy",
-    "category": "Quick & Easy",
-    "categoryHeb": "מהיר וקל",
-    "nameEn": "Zapiekanki (Plac Nowy Okrąglak)",
-    "descHeb": "טוסט הבגט הפולני המסורתי עם פטריות, גבינה מותכת ותוספות לבחירה בלב רובע קז'ימייז'.",
-    "googleRating": 4.5,
-    "googleReviewCount": "",
-    "location": "Plac Nowy, Kazimierz, Kraków",
-    "lat": 50.052,
-    "lng": 19.945,
-    "distanceFromHotelKm": 1.2,
-    "familyCost": "40–60 zł",
-    "costType": "Zapiekanki for family",
-    "stayHours": 0.5,
-    "defaultNote": "פתרון מושלם וזול לנשנוש מהיר",
-    "officialUrl": "",
-    "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=Plac+Nowy+Zapiekanki+Krakow"
-  },
-  {
-    "id": "obwarzanek_cart",
-    "category": "Quick & Easy",
-    "categoryHeb": "מהיר וקל",
-    "nameEn": "Kraków Obwarzanek Carts",
-    "descHeb": "הבייגלה העגול המסורתי של קרקוב (עם מלח, שומשום או פרג) הנמכר בעגלות כחולות בכל פינה.",
-    "googleRating": 4.8,
-    "googleReviewCount": "",
-    "location": "Old Town streets, Kraków",
-    "lat": 50.0617,
-    "lng": 19.9373,
-    "distanceFromHotelKm": 0.0,
-    "familyCost": "10–15 zł",
-    "costType": "A few pretzels for kids",
-    "stayHours": 0.2,
-    "defaultNote": "חטיף הליכה קלאסי שהילדים מנשנשים ברחוב",
-    "officialUrl": "",
-    "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=Obwarzanek+Krakowski"
-  }
+let currentBaseId = 1;
+
+// קטלוג קרקוב המעודכן (50 מקומות: 26 אטרקציות + 24 מסעדות מרוכזות)
+const KRAKOW_CATALOG = [
+  { "id": "womai", "category": "Science & Senses", "categoryHeb": "מדע וחושים", "subCategory": "", "nameEn": "WOMAI Sensory Centre", "descHeb": "מרכז חושים אינטראקטיבי; חוויית החושך מתאימה יותר לילדים גדולים, מומלץ לבדוק את סוג התערוכה מראש.", "googleRating": 5.0, "location": "Pawia 34, Kraków", "lat": 50.069, "lng": 19.945, "familyCost": "160–200 zł", "stayHours": 1.5, "defaultNote": "לבדוק התאמה לגיל הילדים" },
+  { "id": "lem_garden", "category": "Science & Senses", "categoryHeb": "מדע וחושים", "subCategory": "", "nameEn": "Stanislaw Lem Garden of Experiences", "descHeb": "פארק מדעי פתוח עם מתקני פיזיקה וניסויים; בחירה מצוינת ביום שמש.", "googleRating": 4.6, "location": "al. Pokoju 68, Kraków", "lat": 50.0675, "lng": 20.0047, "familyCost": "70–90 zł", "stayHours": 2.5, "defaultNote": "עדיף במזג אוויר יבש" },
+  { "id": "mit", "category": "Science & Senses", "categoryHeb": "מדע וחושים", "subCategory": "", "nameEn": "Museum of Engineering and Technology", "descHeb": "מוזיאון בקז'ימייז' עם מכונות, תחבורה וטכנולוגיה ואזורים אינטראקטיביים לילדים.", "googleRating": 4.6, "location": "św. Wawrzyńca 15, Kraków", "lat": 50.0507, "lng": 19.9468, "familyCost": "95 zł", "stayHours": 2.0, "defaultNote": "מתאים לשילוב עם קז'ימייז'" },
+  { "id": "polish_aviation_museum", "category": "Science & Senses", "categoryHeb": "מדע וחושים", "subCategory": "", "nameEn": "Polish Aviation Museum", "descHeb": "מוזיאון תעופה ענק מהטובים באירופה; עשרות מטוסים, מסוקים ותערוכות אינטראקטיביות.", "googleRating": 4.7, "location": "al. Jana Pawła II 39, Kraków", "lat": 50.0777, "lng": 19.9912, "familyCost": "80–120 zł", "stayHours": 2.5, "defaultNote": "מתחם פנימי וחיצוני רחב, מעולה לילדים" },
+  { "id": "arcade_museum", "category": "Games & Fun", "categoryHeb": "משחקים ואקשן", "subCategory": "", "nameEn": "Krakow Arcade Museum", "descHeb": "מעל 150 מכונות ארקייד רטרו למשחק חופשי בכרטיס אחד; חוויה מושלמת לכל המשפחה.", "googleRating": 4.9, "location": "Centralna 41a, Kraków", "lat": 50.0631, "lng": 20.0076, "familyCost": "170 zł", "stayHours": 2.5, "defaultNote": "מושלם לשעות אחה\"צ או יום גשום" },
+  { "id": "pinball_museum", "category": "Games & Fun", "categoryHeb": "משחקים ואקשן", "subCategory": "", "nameEn": "Krakow Pinball Museum", "descHeb": "עשרות מכונות פליפר ומשחקי רטרו במרכז העיר; מיקום נוח מאוד ומשחק חופשי.", "googleRating": 4.8, "location": "Stradomska 15, Kraków", "lat": 50.0545, "lng": 19.9398, "familyCost": "140–160 zł", "stayHours": 1.5, "defaultNote": "קרוב מאוד לטירת ואוול ולמלון" },
+  { "id": "laserpark", "category": "Games & Fun", "categoryHeb": "משחקים ואקשן", "subCategory": "", "nameEn": "LaserPark Kraków", "descHeb": "לייזר טאג ומבוך לייזר באווירה עתידנית; מתאים במיוחד לפריקת אנרגיה קבוצתית.", "googleRating": 4.8, "location": "Zabłocie 20/22, Kraków", "lat": 50.0485, "lng": 19.9634, "familyCost": "120–180 zł", "stayHours": 1.5, "defaultNote": "כדאי להזמין סבב מראש בסופ\"ש" },
+  { "id": "gojump_sikorki", "category": "Games & Fun", "categoryHeb": "משחקים ואקשן", "subCategory": "", "nameEn": "GOjump MEGAPARK (Sikorki)", "descHeb": "פארק טרמפולינות ומתנפחים ענק עם מסלולי נינג'ה ובריכות ספוג; מעולה לילדים.", "googleRating": 4.6, "location": "Sikorki 23, Kraków", "lat": 50.0674, "lng": 20.0245, "familyCost": "160–220 zł", "stayHours": 2.0, "defaultNote": "חובה גרביים מונעות החלקה" },
+  { "id": "be_happy_krakow", "category": "Games & Fun", "categoryHeb": "משחקים ואקשן", "subCategory": "", "nameEn": "Be Happy Museum Kraków", "descHeb": "מוזיאון צבעוני ואינטראקטיבי של אשליות מתוקות, בריכות מרשמלו ורקעים מושלמים לתמונות משפחתיות.", "googleRating": 4.6, "location": "Karmelicka 3, Kraków", "lat": 50.0642, "lng": 19.9331, "familyCost": "110–160 zł", "stayHours": 1.5, "defaultNote": "חוויה כיפית וקלילה ממש ליד מרכז העיר" },
+  { "id": "wieliczka", "category": "Must-See & Nature", "categoryHeb": "טבע ואתרי חובה", "subCategory": "", "nameEn": "Wieliczka Salt Mine", "descHeb": "מכרות המלח המפורסמים - אולמות ענק מרהיבים, קפלת מלח תת-קרקעית ואגמים קסומים.", "googleRating": 4.7, "location": "Daniłowicza 10, Wieliczka", "lat": 49.9831, "lng": 20.0557, "familyCost": "380–430 zł", "stayHours": 3.0, "defaultNote": "חובה להזמין שעה מראש; נעליים נוחות ועליונית" },
+  { "id": "wawel", "category": "Must-See & Nature", "categoryHeb": "טבע ואתרי חובה", "subCategory": "", "nameEn": "Wawel Royal Castle & Grounds", "descHeb": "טירת המלכים של קרקוב - חצרות יפהפיות, תצפית לנהר הוויסלה ופסל הדרקון היורק אש.", "googleRating": 4.8, "location": "Wawel 5, Kraków", "lat": 50.054, "lng": 19.9354, "familyCost": "Grounds free", "stayHours": 2.0, "defaultNote": "טיול רגלי קל מהמלון, הילדים יאהבו את הדרקון" },
+  { "id": "krakow_zoo", "category": "Must-See & Nature", "categoryHeb": "טבע ואתרי חובה", "subCategory": "", "nameEn": "Krakow Zoo", "descHeb": "גן חיות נעים ומיוער ביער וולסקי; מתאים מאוד לטיול משפחתי רגוע בטבע.", "googleRating": 4.4, "location": "Kasy Oszczędności Miasta Krakowa 14, Kraków", "lat": 50.0543, "lng": 19.8536, "familyCost": "120–140 zł", "stayHours": 3.0, "defaultNote": "יש עליות וירידות, כדאי עגלה לילדים קטנים" },
+  { "id": "ojcow_park", "category": "Must-See & Nature", "categoryHeb": "טבע ואתרי חובה", "subCategory": "", "nameEn": "Ojców National Park", "descHeb": "הפארק הלאומי הקרוב לקרקוב עם תצורות סלע מיוחדות, מערות, טירות ומסלולי טבע קלים.", "googleRating": 4.8, "location": "Ojców, Małopolskie", "lat": 50.2104, "lng": 19.8317, "familyCost": "Free park", "stayHours": 3.5, "defaultNote": "דורש רכב, טיול יום נהדר במזג אוויר טוב" },
+  { "id": "krakus_mound", "category": "Must-See & Nature", "categoryHeb": "טבע ואתרי חובה", "subCategory": "", "nameEn": "Krakus Mound (Kopiec Krakusa)", "descHeb": "תל היסטורי עם תצפית פנורמית של 360 מעלות על כל העיר; נקודה נהדרת לפיקניק ושקיעה.", "googleRating": 4.7, "location": "Franciszkka Maryewskiego, Kraków", "lat": 50.038, "lng": 19.9583, "familyCost": "Free", "stayHours": 1.0, "defaultNote": "כדאי להגיע לקראת שקיעה ביום בהיר" },
+  { "id": "planty_park", "category": "Must-See & Nature", "categoryHeb": "טבע ואתרי חובה", "subCategory": "", "nameEn": "Planty Park Ring", "descHeb": "טבעת הגנים הירוקה המקיפה את העיר העתיקה; שבילים נעימים וגני שעשועים במרחק פסיעה מהמלון.", "googleRating": 4.8, "location": "Old Town ring, Kraków", "lat": 50.063, "lng": 19.94, "familyCost": "Free", "stayHours": 1.0, "defaultNote": "מצוין להפוגה קצרה עם הילדים בין פעילויות" },
+  { "id": "galeria_krakowska", "category": "Shopping & Outlets", "categoryHeb": "קניות ואאוטלט", "subCategory": "", "nameEn": "Galeria Krakowska", "descHeb": "קניון ענק ומודרני הצמוד לתחנת הרכבת המרכזית; מרחק הליכה קצר מהמלון עם כל המותגים.", "googleRating": 4.5, "location": "Pawia 5, Kraków", "lat": 50.067, "lng": 19.9458, "familyCost": "Free entry", "stayHours": 2.5, "defaultNote": "הכי נוח ונגיש ברגל מהעיר העתיקה" },
+  { "id": "galeria_kazimierz", "category": "Shopping & Outlets", "categoryHeb": "קניות ואאוטלט", "subCategory": "", "nameEn": "Galeria Kazimierz", "descHeb": "קניון נעים ומרווח ברובע היהודי עם קולנוע, חנויות אופנה ומתחם אוכל רגוע.", "googleRating": 4.4, "location": "Podgórska 34, Kraków", "lat": 50.0531, "lng": 19.9575, "familyCost": "Free entry", "stayHours": 2.0, "defaultNote": "משתלב נהדר עם ביקור ברובע קז'ימייז'" },
+  { "id": "bonarka", "category": "Shopping & Outlets", "categoryHeb": "קניות ואאוטלט", "subCategory": "", "nameEn": "Bonarka City Center", "descHeb": "אחד הקניונים הגדולים ביותר בקרקוב; מגוון חנויות ענק, פריימרק ומתחמי שעשועים.", "googleRating": 4.5, "location": "Kamieńskiego 11, Kraków", "lat": 50.0275, "lng": 19.9535, "familyCost": "Free entry", "stayHours": 3.0, "defaultNote": "מתאים לחצי יום קניות רציני (מונית/אובר)" },
+  { "id": "serenada", "category": "Shopping & Outlets", "categoryHeb": "קניות ואאוטלט", "subCategory": "", "nameEn": "Centrum Serenada", "descHeb": "קניון מודרני בצפון העיר הצמוד לפארק המים (Park Wodny); שילוב מצוין לבילוי וקניות.", "googleRating": 4.5, "location": "al. Bora-Komorowskiego 41, Kraków", "lat": 50.089, "lng": 19.9839, "familyCost": "Free entry", "stayHours": 2.0, "defaultNote": "צמוד לפארק המים המקורה" },
+  { "id": "factory_outlet", "category": "Shopping & Outlets", "categoryHeb": "קניות ואאוטלט", "subCategory": "", "nameEn": "Factory Krakow Outlet", "descHeb": "מתחם האאוטלט המוביל של קרקוב עם מותגי אופנה וספורט בהנחות קבועות.", "googleRating": 4.3, "location": "Prof. Adama Rożańskiego 32, Modlniczka", "lat": 50.1042, "lng": 19.8431, "familyCost": "Free entry", "stayHours": 2.5, "defaultNote": "מחוץ לעיר, מומלץ להגיע ברכב או מונית" },
+  { "id": "sukiennice", "category": "Shopping & Outlets", "categoryHeb": "קניות ואאוטלט", "subCategory": "", "nameEn": "Sukiennice (Cloth Hall)", "descHeb": "אולם הבדים ההיסטורי בלב הכיכר המרכזית; שוק מזכרות, תכשיטי ענבר ועבודות יד.", "googleRating": 4.7, "location": "Rynek Główny 1/3, Kraków", "lat": 50.0617, "lng": 19.9373, "familyCost": "Free entry", "stayHours": 0.5, "defaultNote": "ממש מתחת למלון, מעולה לקניית מזכרות קטנות" },
+  { "id": "fikołki_bonarka", "category": "Indoor Playgrounds", "categoryHeb": "משחקיות וטרמפולינות", "subCategory": "", "nameEn": "Fikołki Sala Zabaw (Bonarka)", "descHeb": "משחקיית ענק מושקעת לילדים עם מבוכי טיפוס, מגלשות וקירות טיפוס בתוך קניון בונארקה.", "googleRating": 4.6, "location": "Bonarka City Center, Kraków", "lat": 50.0275, "lng": 19.9535, "familyCost": "70–120 zł", "stayHours": 2.0, "defaultNote": "ההורים יכולים לשתות קפה בזמן שהילדים משחקים" },
+  { "id": "animatria", "category": "Indoor Playgrounds", "categoryHeb": "משחקיות וטרמפולינות", "subCategory": "", "nameEn": "Animatria Sala Zabaw", "descHeb": "משחקייה איכותית ונעימה עם פינות משחק מגוונות ופעילויות מותאמות לגילאי 3 עד 8.", "googleRating": 4.7, "location": "Kraków", "lat": 50.045, "lng": 19.97, "familyCost": "50–80 zł", "stayHours": 1.5, "defaultNote": "מעולה לקטנטנים" },
+  { "id": "park_wodny", "category": "Indoor Playgrounds", "categoryHeb": "משחקיות וטרמפולינות", "subCategory": "", "nameEn": "Park Wodny Kraków (Water Park)", "descHeb": "פארק מים מקורה מהגדולים בפולין עם מגלשות ענק, בריכות זרמים ומתחם ייעודי לפעוטות.", "googleRating": 4.4, "location": "Dobrego Pasterza 126, Kraków", "lat": 50.0898, "lng": 19.9823, "familyCost": "160–220 zł", "stayHours": 2.5, "defaultNote": "להביא בגדי ים, מגבות וכפכפים" },
+  { "id": "bricks_and_figs", "category": "Indoor Playgrounds", "categoryHeb": "משחקיות וטרמפולינות", "subCategory": "", "nameEn": "Bricks & Figs LEGO Museum", "descHeb": "מוזיאון הלגו הפעיל והמוביל בקרקוב; תערוכות דגמים ענקיות, מתחמי בנייה ומשחק לילדים.", "googleRating": 4.8, "location": "Henryka Dąbrowskiego 20, Kraków", "lat": 50.0458, "lng": 19.9580, "familyCost": "90–130 zł", "stayHours": 2.0, "defaultNote": "החלופה המומלצת והפעילה למרכז לגו" },
+  { "id": "goair_airpark", "category": "Indoor Playgrounds", "categoryHeb": "משחקיות וטרמפולינות", "subCategory": "", "nameEn": "GOair Powietrzny Miasto", "descHeb": "עיר מתנפחים מקורה ענקית עם מסלולי מכשולים ומגלשות ענק; צמוד ל-GOjump.", "googleRating": 4.6, "location": "Sikorki 23, Kraków", "lat": 50.0674, "lng": 20.0245, "familyCost": "150–200 zł", "stayHours": 2.0, "defaultNote": "כרטיס משולב אפשרי עם GOjump" },
+
+  /* 24 מסעדות בקרקוב - תחת "אוכל ומסעדות" עם סיווג */
+  { "id": "pod_wawelem", "category": "Food & Dining", "categoryHeb": "אוכל ומסעדות", "subCategory": "מסעדה משפחתית", "nameEn": "Pod Wawelem Kompania Kuflowa", "descHeb": "מסעדה פולנית מפורסמת ושמחה מול ואוול עם מנות ענקיות, תפריט ילדים ואווירה נהדרת.", "googleRating": 4.6, "location": "św. Gertrudy 26-29, Kraków", "lat": 50.0547, "lng": 19.9392, "familyCost": "160–240 zł", "stayHours": 1.5, "defaultNote": "מנות ענקיות לחלוקה בין המשפחות" },
+  { "id": "starka", "category": "Food & Dining", "categoryHeb": "אוכל ומסעדות", "subCategory": "מסעדה משפחתית", "nameEn": "Starka Restaurant", "descHeb": "מסעדה חמימה ואיכותית בקז'ימייז' עם אוכל פולני מסורתי משובח ואווירה מזמינה.", "googleRating": 4.7, "location": "Józefa 14, Kraków", "lat": 50.0505, "lng": 19.9455, "familyCost": "180–250 zł", "stayHours": 1.5, "defaultNote": "מומלץ מאוד להזמין מקום מראש" },
+  { "id": "chlopskie_jadlo", "category": "Food & Dining", "categoryHeb": "אוכל ומסעדות", "subCategory": "אוכל פולני כפרי", "nameEn": "Chłopskie Jadło Kraków", "descHeb": "אוכל פולני כפרי וחמים - פירוגי מגוונים, מרקי חורף ומנות מסורתיות שילדים אוהבים.", "googleRating": 4.4, "location": "Grodzka 9, Kraków", "lat": 50.0589, "lng": 19.938, "familyCost": "140–200 zł", "stayHours": 1.5, "defaultNote": "קרוב מאוד לכיכר המרכזית" },
+  { "id": "morskie_oko", "category": "Food & Dining", "categoryHeb": "אוכל ומסעדות", "subCategory": "מסעדה הררית מסורתית", "nameEn": "Morskie Oko Restaurant", "descHeb": "מסעדה בעיצוב בקתת עץ הררית היישר מזקופנה; מוזיקה חיה עממית ואוכל פולני מסורתי.", "googleRating": 4.6, "location": "Szczepański 8, Kraków", "lat": 50.0633, "lng": 19.9362, "familyCost": "180–260 zł", "stayHours": 1.5, "defaultNote": "מרחק 2 דקות הליכה מהמלון" },
+  { "id": "trattoria_cyklop", "category": "Food & Dining", "categoryHeb": "אוכל ומסעדות", "subCategory": "פיצה ואיטלקי", "nameEn": "Trattoria Cyklop", "descHeb": "פיצה נאפוליטנית מפורסמת הנאפית בתנור עצים עתיק בסמטה קסומה ליד הכיכר; מושלם לילדים.", "googleRating": 4.6, "location": "Mikołajska 16, Kraków", "lat": 50.0615, "lng": 19.9418, "familyCost": "110–160 zł", "stayHours": 1.0, "defaultNote": "פיצות מעולות שכולם אוהבים" },
+  { "id": "nolio", "category": "Food & Dining", "categoryHeb": "אוכל ומסעדות", "subCategory": "פיצה נפוליטנית", "nameEn": "Nolio Restaurant", "descHeb": "פיצרייה נאפוליטנית בעלת תקן בינלאומי ברובע היהודי; חומרי גלם מאיטליה ורמה גבוהה במיוחד.", "googleRating": 4.7, "location": "Krakowska 27, Kraków", "lat": 50.0488, "lng": 19.9436, "familyCost": "130–180 zł", "stayHours": 1.5, "defaultNote": "נחשבת לאחת הפיצות הטובות בפולין" },
+  { "id": "moa_burger", "category": "Food & Dining", "categoryHeb": "אוכל ומסעדות", "subCategory": "המבורגרים וצ'יפס", "nameEn": "MoaBurger Kraków", "descHeb": "המבורגרים בסגנון ניו-זילנדי עם קציצות איכותיות ומנות צ'יפס גדולות שילדים מחסלים.", "googleRating": 4.6, "location": "Mikołajska 3, Kraków", "lat": 50.0609, "lng": 19.9403, "familyCost": "110–160 zł", "stayHours": 1.0, "defaultNote": "3 דקות הליכה מהמלון, שירות מהיר" },
+  { "id": "cafe_camelot", "category": "Food & Dining", "categoryHeb": "אוכל ומסעדות", "subCategory": "בית קפה וקינוחים", "nameEn": "Café Camelot", "descHeb": "בית קפה קסום וציורי בסמטה עתיקה עם עוגות ביתיות מדהימות ואווירה חמה.", "googleRating": 4.6, "location": "św. Tomasza 17, Kraków", "lat": 50.0628, "lng": 19.9378, "familyCost": "60–100 zł", "stayHours": 1.0, "defaultNote": "דקה אחת ברגל מהמלון, מעולה לקפה ועוגה" },
+  { "id": "nowa_prowincja", "category": "Food & Dining", "categoryHeb": "אוכל ומסעדות", "subCategory": "שוקו חם וקינוחים", "nameEn": "Nowa Prowincja", "descHeb": "בית קפה ספרותי ואינטימי המפורסם בשוקו החם הסמיך שלו ובעוגת התפוחים המשובחת.", "googleRating": 4.7, "location": "Bracka 3-5, Kraków", "lat": 50.0597, "lng": 19.9366, "familyCost": "50–90 zł", "stayHours": 1.0, "defaultNote": "הילדים ישתגעו על השוקו הסמיך" },
+  { "id": "charlotte", "category": "Food & Dining", "categoryHeb": "אוכל ומסעדות", "subCategory": "ביסטרו ומאפייה צרפתית", "nameEn": "Charlotte Bistro", "descHeb": "ביסטרו צרפתי פופולרי בכיכר שצ'פאנסקי עם לחמים טריים, ממרחי שוקולד וריבות בצנצנות ענק.", "googleRating": 4.4, "location": "Plac Szczepański 2, Kraków", "lat": 50.0634, "lng": 19.9358, "familyCost": "70–120 zł", "stayHours": 1.0, "defaultNote": "ארוחות בוקר מעולות ומאפים" },
+  { "id": "grycan", "category": "Food & Dining", "categoryHeb": "אוכל ומסעדות", "subCategory": "גלידרייה", "nameEn": "Grycan Ice Cream", "descHeb": "רשת הגלידה והקינוחים הפולנית המוכרת; מבחר טעמי שמנת וסורבה וקינוחי גלידה עשירים.", "googleRating": 4.5, "location": "Galeria Krakowska / Old Town", "lat": 50.0665, "lng": 19.9450, "familyCost": "35–60 zł", "stayHours": 0.5, "defaultNote": "עצירת מתוק נוחה באמצע יום" },
+  { "id": "lody_starowislna", "category": "Food & Dining", "categoryHeb": "אוכל ומסעדות", "subCategory": "גלידה מסורתית", "nameEn": "Lody na Starowiślnej", "descHeb": "הגלידריה הנוסטלגית המפורסמת של קרקוב; תמיד יש תור, אך הגלידה המסורתית שווה כל רגע.", "googleRating": 4.7, "location": "Starowiślna 83, Kraków", "lat": 50.0515, "lng": 19.9485, "familyCost": "25–40 zł", "stayHours": 0.5, "defaultNote": "תשלום במזומן בלבד לעיתים קרובות" },
+  { "id": "krakowska_food_court", "category": "Food & Dining", "categoryHeb": "אוכל ומסעדות", "subCategory": "מתחם מזון מהיר", "nameEn": "Galeria Krakowska Food Court", "descHeb": "מתחם המזון של קניון קרקובסקה עם מקדונלדס, KFC, פיצות, סושי ואוכל מהיר שסוגר פינה.", "googleRating": 4.2, "location": "Pawia 5, Kraków", "lat": 50.0670, "lng": 19.9458, "familyCost": "60–110 zł", "stayHours": 0.8, "defaultNote": "פתרון מהיר, קל ונגיש עם הילדים" },
+  { "id": "hamsa", "category": "Food & Dining", "categoryHeb": "אוכל ומסעדות", "subCategory": "מזרח תיכוני וחומוס", "nameEn": "Hamsa Restaurant", "descHeb": "מסעדה מזרח-תיכונית נעימה בקז'ימייז' עם חומוס טרי, פלאפל, שקשוקה וסלטים רעננים.", "googleRating": 4.5, "location": "Szeroka 2, Kraków", "lat": 50.0528, "lng": 19.9482, "familyCost": "120–180 zł", "stayHours": 1.2, "defaultNote": "מעולה למי שמתגעגע לאוכל ים-תיכוני מוכר" },
+  { "id": "mamma_mia", "category": "Food & Dining", "categoryHeb": "אוכל ומסעדות", "subCategory": "פיצה ופסטה איטלקית", "nameEn": "Trattoria Mamma Mia", "descHeb": "טרטוריה איטלקית תוססת ברחוב כרמליצקה; פיצות נפוליטניות, פסטות ביתיות ותפריט משפחתי מעולה.", "googleRating": 4.6, "location": "Karmelicka 14, Kraków", "lat": 50.0648, "lng": 19.9325, "familyCost": "120–170 zł", "stayHours": 1.2, "defaultNote": "מאוד ידידותית לילדים" },
+  { "id": "pino_garden", "category": "Food & Dining", "categoryHeb": "אוכל ומסעדות", "subCategory": "מסעדה משפחתית וגן", "nameEn": "PINO Garden", "descHeb": "מסעדת גן מרווחת ומודרנית ליד פארק בלוניה; מתחם משחקים לילדים, פיצות ואוכל בינלאומי.", "googleRating": 4.6, "location": "Na Błoniach 7, Kraków", "lat": 50.0595, "lng": 19.9050, "familyCost": "150–220 zł", "stayHours": 1.5, "defaultNote": "מקום מושלם למשפחות ביום יפה" },
+  { "id": "well_done_bbq", "category": "Food & Dining", "categoryHeb": "אוכל ומסעדות", "subCategory": "ברביקיו אמריקאי", "nameEn": "Well Done BBQ", "descHeb": "מסעדת בשרים וברביקיו מעושן בסגנון אמריקאי; המבורגרים עסיסיים וצלעות שילדים ומבוגרים אוהבים.", "googleRating": 4.6, "location": "Mostowa / Kazimierz, Kraków", "lat": 50.0480, "lng": 19.9550, "familyCost": "140–210 zł", "stayHours": 1.2, "defaultNote": "מנות נדיבות ואווירה כיפית" },
+  { "id": "jeffs_kazimierz", "category": "Food & Dining", "categoryHeb": "אוכל ומסעדות", "subCategory": "דיינר אמריקאי למשפחות", "nameEn": "JEFF'S Galeria Kazimierz", "descHeb": "דיינר אמריקאי צבעוני בקניון קז'ימייז' עם כנפיים, המבורגרים, פופקורן ופעילויות לילדים.", "googleRating": 4.4, "location": "Podgórska 34, Kraków", "lat": 50.0531, "lng": 19.9575, "familyCost": "160–240 zł", "stayHours": 1.5, "defaultNote": "חוויה מעולה לילדים עם הפעלות" },
+  { "id": "papryczki_5", "category": "Food & Dining", "categoryHeb": "אוכל ומסעדות", "subCategory": "פיצרייה איטלקית", "nameEn": "Papryczki 5", "descHeb": "פיצרייה איטלקית אותנטית ליד הכיכר; בצק דק פריך, רטבים עשירים ומחירים נוחים.", "googleRating": 4.6, "location": "Mikołajska 5, Kraków", "lat": 50.0610, "lng": 19.9400, "familyCost": "110–150 zł", "stayHours": 1.0, "defaultNote": "מיקום מעולה בלב העיר" },
+  { "id": "manufaktura_pieroga", "category": "Food & Dining", "categoryHeb": "אוכל ומסעדות", "subCategory": "כופתאות פירוגי בעבודת יד", "nameEn": "Manufaktura Pieroga", "descHeb": "ממלכת הפירוגי של קרקוב; עשרות סוגי כופתאות מתוקות ומלוחות המיוצרות במקום.", "googleRating": 4.7, "location": "Marii Konopnickiej 71, Kraków", "lat": 50.0425, "lng": 19.9360, "familyCost": "80–130 zł", "stayHours": 1.0, "defaultNote": "אהוב במיוחד על ילדים (פירוגי תותים/גבינה)" },
+  { "id": "akita_ramen", "category": "Food & Dining", "categoryHeb": "אוכל ומסעדות", "subCategory": "ראמן ואסייתי", "nameEn": "Akita Ramen", "descHeb": "מרקי ראמן עשירים ואטריות טריות בקז'ימייז'; מושלם לחימום ביום קריר ולחובבי אוכל אסייתי.", "googleRating": 4.7, "location": "Węgłowa 4, Kraków", "lat": 50.0482, "lng": 19.9442, "familyCost": "120–170 zł", "stayHours": 1.0, "defaultNote": "שירות מהיר ומנות טעימות" },
+  { "id": "black_duck", "category": "Food & Dining", "categoryHeb": "אוכל ומסעדות", "subCategory": "מסורתי פולני (ברווז)", "nameEn": "Czarna Kaczka / Black Duck", "descHeb": "מסעדה אלגנטית וחמימה המתמחה במנות ברווז פולניות מסורתיות, כופתאות ומרקים מעולים.", "googleRating": 4.6, "location": "Poselska 22, Kraków", "lat": 50.0583, "lng": 19.9372, "familyCost": "180–270 zł", "stayHours": 1.5, "defaultNote": "מנת הברווז בתפוחים מומלצת במיוחד" },
+  { "id": "gaska", "category": "Food & Dining", "categoryHeb": "אוכל ומסעדות", "subCategory": "מסעדת אווזים פולנית", "nameEn": "Gąska Restaurant", "descHeb": "מסעדה ציורית בפודגורזה המתמחה במאכלי אווז מסורתיים, מאפים ביתיים ואווירה משפחתית נעימה.", "googleRating": 4.7, "location": "Bolesława Limanowskiego 1, Kraków", "lat": 50.0452, "lng": 19.9512, "familyCost": "170–250 zł", "stayHours": 1.5, "defaultNote": "חוויה קולינרית פולנית מסורתית" },
+  { "id": "tawerna_wilczy_dol", "category": "Food & Dining", "categoryHeb": "אוכל ומסעדות", "subCategory": "טברנה ימי-ביניימית חווייתית", "nameEn": "Tawerna Wilczy Dół", "descHeb": "טברנה ימי-ביניימית מרהיבה עם מלצרים בתלבושות תקופתיות, חרבות ומנות בשרים שילדים יזכרו.", "googleRating": 4.7, "location": "Szpitalna 22, Kraków", "lat": 50.0630, "lng": 19.9400, "familyCost": "160–240 zł", "stayHours": 1.5, "defaultNote": "חוויה תיאטרלית בלתי נשכחת לילדים" }
 ];
+
+// קטלוג זאקופנה והטטרה המעודכן (36 מקומות: 21 אטרקציות + 15 מסעדות מרוכזות)
+const ZAKOPANE_CATALOG = [
+  { "id": "gubalowka", "category": "Nature & Scenic", "categoryHeb": "טבע ונוף", "subCategory": "", "nameEn": "Gubałówka Hill & Funicular", "descHeb": "עלייה קלה בפוניקולר לתצפית על הרי הטטרה; מתאים מאוד למשפחות וללא צורך בטיפוס רגלי.", "googleRating": 4.6, "location": "Na Gubałówkę 4, Zakopane", "lat": 49.3077, "lng": 19.9359, "familyCost": "≈130–180 zł", "stayHours": 2.5, "defaultNote": "להגיע מוקדם כדי להימנע מעומס." },
+  { "id": "morskie_oko", "category": "Nature & Scenic", "categoryHeb": "טבע ונוף", "subCategory": "", "nameEn": "Morskie Oko Lake", "descHeb": "אגם אלפיני מרהיב; הדרך סלולה ומתאימה לעגלות אך מדובר בהליכה ארוכה מאוד הלוך וחזור.", "googleRating": 4.8, "location": "Tatra National Park (Palenica Białczańska)", "lat": 49.2552, "lng": 20.1030, "familyCost": "≈40–80 zł", "stayHours": 6.0, "defaultNote": "יום ארוך; נעלי הליכה, מים ושכבות חמות." },
+  { "id": "kasprowy", "category": "Nature & Scenic", "categoryHeb": "טבע ונוף", "subCategory": "", "nameEn": "Kasprowy Wierch Cable Car", "descHeb": "רכבל לפסגה אלפינית גבוהה; נוף מרהיב אך חובה לרכוש כרטיס שעה מראש.", "googleRating": 4.6, "location": "Kuźnice 14, Zakopane", "lat": 49.2694, "lng": 19.9806, "familyCost": "≈300–450 zł", "stayHours": 3.0, "defaultNote": "להזמין כרטיסים שבועות מראש; לבדוק מזג אוויר ורוחות." },
+  { "id": "koscieliska", "category": "Nature & Scenic", "categoryHeb": "טבע ונוף", "subCategory": "", "nameEn": "Dolina Kościeliska Valley", "descHeb": "עמק ירוק, שטוח יחסית ומקסים; הליכה קלה לאורך נחל ומתאימה מאוד לילדים.", "googleRating": 4.8, "location": "Kiry, Kościelisko", "lat": 49.2760, "lng": 19.8687, "familyCost": "≈30–50 zł", "stayHours": 4.0, "defaultNote": "קרוב מאוד למלון בקושטליסקו; מסלול משפחתי מושלם." },
+  { "id": "chocholowska_valley", "category": "Nature & Scenic", "categoryHeb": "טבע ונוף", "subCategory": "", "nameEn": "Chochołowska Valley", "descHeb": "העמק הארוך ביותר בטטרה; ניתן לשכור אופניים או לנסוע בכרכרת סוסים וברכבת תיירים.", "googleRating": 4.8, "location": "Siwa Polana, Witów", "lat": 49.2818, "lng": 19.8276, "familyCost": "≈30–60 zł", "stayHours": 4.0, "defaultNote": "אופציה מצוינת לאופניים משפחתיים בעמק." },
+  { "id": "strazyska_valley", "category": "Nature & Scenic", "categoryHeb": "טבע ונוף", "subCategory": "", "nameEn": "Strążyska Valley", "descHeb": "עמק קצר ונעים במיוחד למשפחות עם שביל מוצל לאורך פלג מים ומפל מרהיב בסופו.", "googleRating": 4.8, "location": "Dolina Strążyska, Zakopane", "lat": 49.2785, "lng": 19.9320, "familyCost": "≈25–40 zł", "stayHours": 2.5, "defaultNote": "הליכה קלה ומושלמת עם ילדים קטנים" },
+  { "id": "papugarnia", "category": "Family Fun", "categoryHeb": "כיף משפחתי", "subCategory": "", "nameEn": "Największa Papugarnia Egzotyczne Zakopane", "descHeb": "מתחם תוכים אקזוטיים ענק שבו התוכים מתעופפים בחופשיות, נוחתים על הידיים ואוכלים מכף היד.", "googleRating": 4.5, "location": "Droga do Olczy 11, Zakopane", "lat": 49.2941, "lng": 19.9893, "familyCost": "≈90–130 zł", "stayHours": 1.0, "defaultNote": "הילדים מתים על זה; להוריד שרשראות/תכשיטים נוצצים." },
+  { "id": "iluzja_park", "category": "Family Fun", "categoryHeb": "כיף משפחתי", "subCategory": "", "nameEn": "ILUZJA PARK ZAKOPANE", "descHeb": "מוזיאון אשליות אינטראקטיבי עם אפקטים של ברקים, הדמיית סופת שלג ותמונות תלת-ממד.", "googleRating": 4.7, "location": "Krupówki 12, Zakopane", "lat": 49.2965, "lng": 19.9535, "familyCost": "≈110–160 zł", "stayHours": 1.5, "defaultNote": "ממוקם ממש ברחוב קרופובקי; מעולה לשילוב עם הליכה בעיר." },
+  { "id": "snowlandia", "category": "Family Fun", "categoryHeb": "כיף משפחתי", "subCategory": "", "nameEn": "Snowlandia Snow Maze", "descHeb": "פארק חורפי למרגלות מקפצת הסקי עם מבוך קרח ענק, איגלו ומגלשות שלג.", "googleRating": 4.6, "location": "Józefa Piłsudskiego 38, Zakopane", "lat": 49.2809, "lng": 19.9678, "familyCost": "≈120–180 zł", "stayHours": 2.0, "defaultNote": "פעיל בעיקר בעונת השלג והחורף." },
+  { "id": "adventure_park", "category": "Family Fun", "categoryHeb": "כיף משפחתי", "subCategory": "", "nameEn": "Adventure Park Przyגody", "descHeb": "פארק חבלים ופעילויות אתגר על פסגת הגובלובקה עם מסלולים מותאמים לילדים.", "googleRating": 4.5, "location": "Gubałówka, Zakopane", "lat": 49.3070, "lng": 19.9360, "familyCost": "≈80–140 zł", "stayHours": 1.5, "defaultNote": "מתחבר מצוין עם העלייה לגובלובקה." },
+  { "id": "be_happy_zakopane", "category": "Family Fun", "categoryHeb": "כיף משפחתי", "subCategory": "", "nameEn": "Be Happy Museum Zakopane", "descHeb": "עולם מתוק ומלא אשליות צבעוניות, בריכות כדורים ונקודות צילום משפחתיות משעשעות.", "googleRating": 4.7, "location": "Krupówki / Centrum, Zakopane", "lat": 49.2980, "lng": 19.9580, "familyCost": "≈100–150 zł", "stayHours": 1.5, "defaultNote": "כיף גדול לילדים בלב העיר" },
+  { "id": "energylandia", "category": "Theme Park", "categoryHeb": "פארק שעשועים", "subCategory": "", "nameEn": "Energylandia Amusement Park", "descHeb": "פארק רכבות ההרים והשעשועים הגדול ביותר בפולין; מתחמי קטנטנים ומתקני אקסטרים עולמיים.", "googleRating": 4.8, "location": "al. 3 Maja 2, Zator", "lat": 49.9972, "lng": 19.4103, "familyCost": "≈500–700 zł", "stayHours": 7.0, "defaultNote": "נסיעה של כשעה וחצי; לתכנן יום שלם מלא מבוקר עד ערב." },
+  { "id": "chocholowskie_termy", "category": "Thermal Baths", "categoryHeb": "מרחצאות תרמיים", "subCategory": "", "nameEn": "Chochołowskie Termy", "descHeb": "מתחם המרחצאות התרמיים הגדול והפופולרי באזור; בריכות גופרית, מגלשות מים ומתחם משפחות ענק.", "googleRating": 4.6, "location": "Chochołów 400, Witów", "lat": 49.4187, "lng": 19.8211, "familyCost": "≈200–300 zł", "stayHours": 3.5, "defaultNote": "הכי מומלץ למשפחות; לבוא אחה\"צ אחרי טיול רגלי." },
+  { "id": "termy_bukovina", "category": "Thermal Baths", "categoryHeb": "מרחצאות תרמיים", "subCategory": "", "nameEn": "Termy BUKOVINA", "descHeb": "מרחצאות תרמיים יפהפיים בתוך יער אשוחים בבוקובינה; מים חמים טבעיים ומגלשות מים לילדים.", "googleRating": 4.3, "location": "Sportowa 22, Bukowina Tatrzańska", "lat": 49.3444, "lng": 20.0827, "familyCost": "≈180–260 zł", "stayHours": 3.0, "defaultNote": "נוף יפהפה ואווירה רגועה יותר." },
+  { "id": "terma_bania", "category": "Thermal Baths", "categoryHeb": "מרחצאות תרמיים", "subCategory": "", "nameEn": "Terma Bania", "descHeb": "פארק מים ותרמי מעולה בביאלקה טטרז'נסקה; אזור כיף מקורה וחיצוני מושלם לילדים.", "googleRating": 4.5, "location": "Środkowa 181, Białka Tatrzańska", "lat": 49.3908, "lng": 20.1065, "familyCost": "≈200–280 zł", "stayHours": 3.5, "defaultNote": "מתחם ילדים מושקע במיוחד." },
+  { "id": "krupowki", "category": "Town & Culture", "categoryHeb": "עיר ותרבות", "subCategory": "", "nameEn": "Krupówki Street", "descHeb": "המדרחוב המרכזי והתוסס של זאקופנה; דוכני עבודות עץ, גבינות אוסציפק, מסעדות ואווירה.", "googleRating": 4.4, "location": "Krupówki, Zakopane", "lat": 49.2955, "lng": 19.9540, "familyCost": "Free walk", "stayHours": 2.0, "defaultNote": "כיף לטיול ערב, קניות מזכרות וגלידה לילדים." },
+  { "id": "wielka_krokiew", "category": "Town & Culture", "categoryHeb": "עיר ותרבות", "subCategory": "", "nameEn": "Wielka Krokiew Ski Jump", "descHeb": "מקפצת הסקי האולימפית המפורסמת; עלייה ברכבל כיסאות לתצפית מרשימה ממרומי המקפצה.", "googleRating": 4.6, "location": "Bronisława Czecha 1, Zakopane", "lat": 49.2797, "lng": 19.9654, "familyCost": "≈60–90 zł", "stayHours": 1.0, "defaultNote": "חוויה קצרה ומרשימה לילדים." },
+  { "id": "tatra_museum", "category": "Town & Culture", "categoryHeb": "עיר ותרבות", "subCategory": "", "nameEn": "The Tatra Museum", "descHeb": "מוזיאון המורשת והתרבות ההררית של הטטרה; תלבושות, היסטוריה וחיות הבר של האזור.", "googleRating": 4.5, "location": "Krupówki 10, Zakopane", "lat": 49.2968, "lng": 19.9525, "familyCost": "≈40–60 zł", "stayHours": 1.0, "defaultNote": "הצצה יפה לתרבות הגוראלים המקומית." },
+  { "id": "oscypek_museum", "category": "Town & Culture", "categoryHeb": "עיר ותרבות", "subCategory": "", "nameEn": "Muzeum Oscypka Zakopane", "descHeb": "מוזיאון אינטראקטיבי המציג את תהליך הכנת גבינת האוסציפק המפורסמת עם סדנה פעילה לילדים.", "googleRating": 4.8, "location": "Jagiellońska 28, Zakopane", "lat": 49.2985, "lng": 19.9620, "familyCost": "≈70–110 zł", "stayHours": 1.5, "defaultNote": "סדנה חווייתית שהילדים מכינים בה גבינה בעצמם" },
+  { "id": "aqua_park", "category": "Weather Backup", "categoryHeb": "גיבוי למזג אוויר", "subCategory": "", "nameEn": "Aqua Park Zakopane", "descHeb": "פארק מים מקורה עירוני במרכז זאקופנה עם בריכות גופרית, מגלשות מהירות ונוף להרים.", "googleRating": 4.3, "location": "Jagiellońska 31, Zakopane", "lat": 49.2974, "lng": 19.9653, "familyCost": "≈150–220 zł", "stayHours": 2.5, "defaultNote": "גיבוי מצוין לשעות גשומות בתוך העיר." },
+  { "id": "szymonek", "category": "Weather Backup", "categoryHeb": "גיבוי למזג אוויר", "subCategory": "", "nameEn": "Centrum Handlowe Szymonek", "descHeb": "מרכז קניות מקומי עם סופרמרקט גדול, ביגוד וחנויות שימושיות להצטיידות.", "googleRating": 4.4, "location": "Chyców Potok 26, Zakopane", "lat": 49.3045, "lng": 19.9702, "familyCost": "Free entry", "stayHours": 1.0, "defaultNote": "מצוין להצטיידות בנשנושים ומצרכים לדירה." },
+
+  /* 15 מסעדות בזאקופנה - תחת "אוכל ומסעדות" עם סיווג */
+  { "id": "zapiecek", "category": "Food & Dining", "categoryHeb": "אוכל ומסעדות", "subCategory": "קרצ'מה הררית מסורתית", "nameEn": "Karczma Zapiecek", "descHeb": "קרצ'מה הררית פופולרית ברחוב קרופובקי עם אוכל גוראלי מסורתי, מרקים בקערת לחם ומוזיקה חיה.", "googleRating": 4.5, "location": "Krupówki 43, Zakopane", "lat": 49.2942, "lng": 19.9555, "familyCost": "≈160–240 zł", "stayHours": 1.5, "defaultNote": "תמיד תוסס ומלא; אווירה הררית שמחה." },
+  { "id": "gazdowo_kuznia", "category": "Food & Dining", "categoryHeb": "אוכל ומסעדות", "subCategory": "פונדק הררי עתיק", "nameEn": "Gazdowo Kuźnia", "descHeb": "הפונדק העתיק ביותר בזאקופנה; מבנה עץ מסורתי יפהפה, מנות בשר ענקיות ותפריט ילדים.", "googleRating": 4.6, "location": "Krupówki 1, Zakopane", "lat": 49.2975, "lng": 19.9515, "familyCost": "≈170–250 zł", "stayHours": 1.5, "defaultNote": "ממוקם בתחילת מדרחוב קרופובקי." },
+  { "id": "cristina", "category": "Food & Dining", "categoryHeb": "אוכל ומסעדות", "subCategory": "פיצה ואיטלקי", "nameEn": "Cristina Ristorante & Pizzeria", "descHeb": "הפיצרייה והמסעדה האיטלקית המובילה בזאקופנה; פיצות איכותיות מעולות שמבטיחות שקט עם הילדים.", "googleRating": 4.7, "location": "Plac Niepodległości 7, Zakopane", "lat": 49.2935, "lng": 19.9530, "familyCost": "≈130–190 zł", "stayHours": 1.5, "defaultNote": "מצוין למי שרוצה לגוון מהאוכל הכבד של ההרים." },
+  { "id": "strh", "category": "Food & Dining", "categoryHeb": "אוכל ומסעדות", "subCategory": "ביסטרו והמבורגרים", "nameEn": "STRH Bistro Art Cafe", "descHeb": "ביסטרו ובית קפה מודרני בקומה העליונה עם תצפית מעולה על רחוב קרופובקי, המבורגרים וטוסטים.", "googleRating": 4.7, "location": "Krupówki 4A, Zakopane", "lat": 49.2970, "lng": 19.9520, "familyCost": "≈120–180 zł", "stayHours": 1.0, "defaultNote": "נוף מקסים מהחלונות, קפה משובח." },
+  { "id": "samanta", "category": "Food & Dining", "categoryHeb": "אוכל ומסעדות", "subCategory": "קונדיטוריה ועוגות", "nameEn": "Cukiernia SAMANTA", "descHeb": "הקונדיטוריה הוותיקה והאהובה בזאקופנה; עוגות מסורתיות, קרמשניט ועוגות שמרים טריות.", "googleRating": 4.6, "location": "Kasprusie 34, Zakopane", "lat": 49.2930, "lng": 19.9480, "familyCost": "≈50–90 zł", "stayHours": 1.0, "defaultNote": "עצירת חובה לקפה ומאפה אחרי טיול בטבע." },
+  { "id": "cafe_tygodnik", "category": "Food & Dining", "categoryHeb": "אוכל ומסעדות", "subCategory": "קפה פנורמי למשפחות", "nameEn": "Cafe Tygodnik Podhalański", "descHeb": "בית קפה פנורמי בגג עם נוף מרהיב לפסגת הגייוונט (Giewont); מתאים מאוד למשפחות.", "googleRating": 4.3, "location": "Tadeusza Kościuszki 3, Zakopane", "lat": 49.2978, "lng": 19.9558, "familyCost": "≈50–85 zł", "stayHours": 1.0, "defaultNote": "תצפית מהממת על סמל ההרים של זאקופנה." },
+  { "id": "zabi_dwor", "category": "Food & Dining", "categoryHeb": "אוכל ומסעדות", "subCategory": "קרצ'מה מסורתית ודגים", "nameEn": "Karczma Żabi Dwór", "descHeb": "קרצ'מה הררית פסטורלית ליד עמק סטראז'יסקה; מנות דגי פורל מעולים, צלעות ואווירה אותנטית ושקטה.", "googleRating": 4.6, "location": "Droga do Daniela 11, Zakopane", "lat": 49.2847, "lng": 19.9430, "familyCost": "≈150–230 zł", "stayHours": 1.5, "defaultNote": "מעולה לארוחה רגועה בטבע" },
+  { "id": "goralska_tradycja", "category": "Food & Dining", "categoryHeb": "אוכל ומסעדות", "subCategory": "מסעדה גוראלית יוקרתית", "nameEn": "Góralska Tradycja", "descHeb": "מסעדת שף הררית מושקעת בעיצוב עץ מרהיב ברחוב קרופובקי עם מנות פולניות מסורתיות משודרגות.", "googleRating": 4.6, "location": "Krupówki 29, Zakopane", "lat": 49.2950, "lng": 19.9535, "familyCost": "≈190–290 zł", "stayHours": 1.5, "defaultNote": "עיצוב פנים מהיפים ביותר בעיר" },
+  { "id": "trattoria_adamo", "category": "Food & Dining", "categoryHeb": "אוכל ומסעדות", "subCategory": "פיצה ופסטה", "nameEn": "Trattoria Adamo", "descHeb": "פיצרייה איטלקית נעימה עם מבחר פיצות פריכות, פסטות ביתיות וסלטים טריים שילדים אוהבים.", "googleRating": 4.5, "location": "Nowotarska 10d, Zakopane", "lat": 49.2960, "lng": 19.9545, "familyCost": "≈110–160 zł", "stayHours": 1.2, "defaultNote": "פתרון איטלקי מעולה וזריז" },
+  { "id": "villa_toscana", "category": "Food & Dining", "categoryHeb": "אוכל ומסעדות", "subCategory": "איטלקי ומשפחות", "nameEn": "Restauracja Villa Toscana", "descHeb": "מסעדה איטלקית מקסימה עם אווירה כפרית טוסקנית, פסטות טריות, פירות ים ומנות ילדים.", "googleRating": 4.6, "location": "Sienkiewicza 10, Zakopane", "lat": 49.2952, "lng": 19.9590, "familyCost": "≈160–240 zł", "stayHours": 1.5, "defaultNote": "אווירה שקטה ומפנקת" },
+  { "id": "zajazd_furmanski", "category": "Food & Dining", "categoryHeb": "אוכל ומסעדות", "subCategory": "פונדק עגלונים מסורתי", "nameEn": "Karczma Zajazd Furmański", "descHeb": "פונדק עץ אותנטי עם קמין בוער, מנות בשר וגולאש ענקיות ונגינה חיה של להקה עממית.", "googleRating": 4.5, "location": "Chłabówka / Zakopane", "lat": 49.2885, "lng": 19.9750, "familyCost": "≈140–210 zł", "stayHours": 1.5, "defaultNote": "חוויית אירוח פולנית חמה במיוחד" },
+  { "id": "zakopianskie_smaki", "category": "Food & Dining", "categoryHeb": "אוכל ומסעדות", "subCategory": "אוכל ביתי הררי", "nameEn": "Zakopiańskie Smaki", "descHeb": "מסעדה עממית המציעה את כל טעמי זאקופנה: פירוגי, מרק ז'ורק וגבינות אוסציפק במחירים שפויים.", "googleRating": 4.4, "location": "Krupówki, Zakopane", "lat": 49.2960, "lng": 19.9530, "familyCost": "≈120–180 zł", "stayHours": 1.2, "defaultNote": "אוכל ביתי מנחם במרכז העיר" },
+  { "id": "bistro_kryjowka", "category": "Food & Dining", "categoryHeb": "אוכל ומסעדות", "subCategory": "ביסטרו ואוכל קל", "nameEn": "Bistro Kryjówka", "descHeb": "ביסטרו קטן ואינטימי המציע כריכים מושקעים, קערות חמות, מרקים ומאפים טריים.", "googleRating": 4.7, "location": "Kościeliska / Centrum, Zakopane", "lat": 49.2945, "lng": 19.9520, "familyCost": "≈90–140 zł", "stayHours": 1.0, "defaultNote": "מעולה לעצירת צהריים קלילה" },
+  { "id": "gwarno", "category": "Food & Dining", "categoryHeb": "אוכל ומסעדות", "subCategory": "מסעדה מודרנית ומבשלת בירה", "nameEn": "Restauracja Gwarno", "descHeb": "מסעדה חדישה למרגלות רכבל הגובלובקה עם מבשלת בירה עצמית, המבורגרים ומנות פולניות מודרניות.", "googleRating": 4.6, "location": "Na Gubałówkę 7, Zakopane", "lat": 49.3000, "lng": 19.9500, "familyCost": "≈160–250 zł", "stayHours": 1.5, "defaultNote": "מושלמת לפני או אחרי העלייה לגובלובקה" },
+  { "id": "pstrag_gorski", "category": "Food & Dining", "categoryHeb": "אוכל ומסעדות", "subCategory": "דגי פורל ומבשלת בירה", "nameEn": "Pstrąg Górski Browar Rzemieślniczy", "descHeb": "מסעדה המתמחה בדגי פורל טריים מנחלי ההרים לצד בירות בוטיק ומנות ילדים עשירות.", "googleRating": 4.5, "location": "Krupówki 6a, Zakopane", "lat": 49.2965, "lng": 19.9510, "familyCost": "≈150–230 zł", "stayHours": 1.5, "defaultNote": "דג הפורל הצלוי הוא מנת הדגל" }
+];
+
+function getActiveCatalog() {
+    return (currentBaseId === 2) ? ZAKOPANE_CATALOG : KRAKOW_CATALOG;
+}
 
 function calculateDistance(lat1, lon1, lat2, lon2) {
     const R = 6371;
@@ -1096,25 +519,60 @@ function calculateDistance(lat1, lon1, lat2, lon2) {
 }
 
 function estimateTransit(km) {
-    if (km <= 2.2) {
+    if (km <= 2.0) {
         const mins = Math.max(4, Math.round((km / 4.5) * 60));
         return { mins, mode: '🚶 הליכה' };
     } else {
-        const mins = Math.max(8, Math.round((km / 22) * 60) + 4);
+        const mins = Math.max(8, Math.round((km / 25) * 60) + 4);
         return { mins, mode: '🚗 רכב / מונית' };
     }
 }
 
 let tripStops = [];
-let activeCategory = ATTRACTIONS_CATALOG[0].category;
+let activeCategory = "";
 
 window.onload = function() {
     loadTripFromUrl();
+    updateBaseUI();
 };
 
+function switchBase(baseId) {
+    if (currentBaseId === baseId) return;
+
+    if (tripStops.length > 0) {
+        if (!confirm("החלפת בסיס הלינה תאפס את המקומות שנבחרו למסלול. להמשיך?")) {
+            return;
+        }
+    }
+
+    currentBaseId = baseId;
+    tripStops = [];
+    activeCategory = "";
+
+    document.querySelectorAll('.base-tab').forEach(b => b.classList.remove('active'));
+    document.getElementById(`tab-base-${baseId}`).classList.add('active');
+
+    updateBaseUI();
+    renderPlanningList();
+    hideResults();
+    updateUrl();
+}
+
+function updateBaseUI() {
+    const base = HOME_BASES[currentBaseId];
+    const isZakopane = (currentBaseId === 2);
+    const catalog = getActiveCatalog();
+
+    document.getElementById('baseRegionBadge').innerText = isZakopane ? "זאקופנה / קושטליסקו (הרים)" : "קרקוב (עיר)";
+    document.getElementById('currentHotelDisplay').innerHTML = `🏨 <strong>מלון נוכחי:</strong> ${base.name} (${base.address})`;
+    document.getElementById('catalogCountDisplay').innerText = `${catalog.length} מקומות זמינים`;
+    document.getElementById('modalTitle').innerText = isZakopane ? "קטלוג זאקופנה והרי הטטרה (36 מקומות)" : "קטלוג קרקוב המלא (50 מקומות)";
+}
+
 function getCurrentReferencePoint() {
+    const base = HOME_BASES[currentBaseId];
     if (tripStops.length === 0) {
-        return { name: HOME_BASE.name, lat: HOME_BASE.lat, lng: HOME_BASE.lng, isHotel: true };
+        return { name: base.name, lat: base.lat, lng: base.lng, isHotel: true };
     } else {
         const last = tripStops[tripStops.length - 1];
         return { name: last.nameEn, lat: last.lat, lng: last.lng, isHotel: false };
@@ -1122,6 +580,11 @@ function getCurrentReferencePoint() {
 }
 
 function openModal() {
+    const catalog = getActiveCatalog();
+    const categories = [...new Set(catalog.map(item => item.categoryHeb))];
+    if (!categories.includes(activeCategory)) {
+        activeCategory = categories[0];
+    }
     renderCategoryTabs();
     renderCatalogList();
     document.getElementById('catalogModal').style.display = 'block';
@@ -1133,12 +596,13 @@ function closeModal() {
 
 function renderCategoryTabs() {
     const tabsContainer = document.getElementById('categoryTabs');
-    const categories = [...new Set(ATTRACTIONS_CATALOG.map(item => item.category))];
-    
+    const catalog = getActiveCatalog();
+    const categories = [...new Set(catalog.map(item => item.categoryHeb))];
+
     tabsContainer.innerHTML = categories.map(cat => {
-        const item = ATTRACTIONS_CATALOG.find(i => i.category === cat);
         const isActive = cat === activeCategory ? 'active' : '';
-        return `<button class="tab-btn ${isActive}" onclick="setActiveCategory('${cat}')">${item.categoryHeb}</button>`;
+        const icon = (cat === 'אוכל ומסעדות') ? '🍽️ ' : '';
+        return `<button class="tab-btn ${isActive}" onclick="setActiveCategory('${cat}')">${icon}${cat}</button>`;
     }).join('');
 }
 
@@ -1151,16 +615,17 @@ function setActiveCategory(cat) {
 function renderCatalogList() {
     const listContainer = document.getElementById('catalogList');
     const ref = getCurrentReferencePoint();
-    
+    const catalog = getActiveCatalog();
+
     const refTextEl = document.getElementById('modalRefText');
     if (ref.isHotel) {
-        refTextEl.innerHTML = `📏 <strong>תחנה ראשונה:</strong> מרחקים ממוינים לפי קרבה ל<strong>מלון הבית</strong>`;
+        refTextEl.innerHTML = `📏 <strong>תחנה ראשונה:</strong> המרחקים מחושבים וממוינים מהקרוב לרחוק מ<strong>מלון הבסיס (${ref.name})</strong>`;
     } else {
-        refTextEl.innerHTML = `📏 <strong>תחנה הבאה:</strong> מרחקים ממוינים לפי קרבה לתחנה הקודמת: <strong>${ref.name}</strong>`;
+        refTextEl.innerHTML = `📏 <strong>תחנה הבאה:</strong> המרחקים מחושבים וממוינים מהקרוב לרחוק מהתחנה הקודמת: <strong>${ref.name}</strong>`;
     }
 
-    let items = ATTRACTIONS_CATALOG
-        .filter(item => item.category === activeCategory)
+    let items = catalog
+        .filter(item => item.categoryHeb === activeCategory)
         .map(item => {
             const dist = calculateDistance(ref.lat, ref.lng, item.lat, item.lng);
             const isAlreadyAdded = tripStops.some(s => s.id === item.id);
@@ -1172,10 +637,15 @@ function renderCatalogList() {
     listContainer.innerHTML = items.map(item => {
         const distLabel = ref.isHotel ? "מהמלון" : `מ-${ref.name}`;
         const ratingDisplay = item.googleRating ? `${item.googleRating} ⭐` : 'מומלץ';
+        const subLabel = item.subCategory ? `<span class="food-subtag">🏷️ ${item.subCategory}</span>` : '';
+
         return `
             <div class="catalog-card ${item.isAlreadyAdded ? 'already-added' : ''}">
                 <div class="catalog-card-header">
-                    <span>${item.nameEn}</span>
+                    <div style="display:flex; align-items:center; gap:8px;">
+                        <span>${item.nameEn}</span>
+                        ${subLabel}
+                    </div>
                     <span style="color: #ea580c;">${ratingDisplay}</span>
                 </div>
                 <div style="font-size: 13px; color: #475569;">${item.descHeb}</div>
@@ -1183,7 +653,7 @@ function renderCatalogList() {
                     📍 ${item.location} &bull; 📏 <strong style="color:#2563eb;">${item.distanceFromRef.toFixed(1)} ק"מ</strong> ${distLabel}
                 </div>
                 <div style="font-size: 12px; color: #0284c7;">
-                    ⏱️ שהות משוערת: ${item.stayHours} שעות &bull; 💰 ${item.familyCost} (${item.costType})
+                    ⏱️ שהות משוערת: ${item.stayHours} שעות &bull; 💰 ${item.familyCost}
                 </div>
                 <button class="btn-select" onclick="addStop('${item.id}')" ${item.isAlreadyAdded ? 'disabled' : ''}>
                     ${item.isAlreadyAdded ? '✓ כבר נוסף למסלול' : '+ הוסף לתחנה הבאה'}
@@ -1194,7 +664,8 @@ function renderCatalogList() {
 }
 
 function addStop(id) {
-    const item = ATTRACTIONS_CATALOG.find(i => i.id === id);
+    const catalog = getActiveCatalog();
+    const item = catalog.find(i => i.id === id);
     if (!item) return;
 
     tripStops.push({ ...item, customNote: item.defaultNote });
@@ -1223,35 +694,42 @@ function renderPlanningList() {
     if (tripStops.length === 0) {
         listEl.innerHTML = `
             <div style="text-align: center; color: var(--text-muted); padding: 30px; background: white; border-radius: 12px; border: 1px dashed var(--border);" id="empty-state">
-                הרשימה ריקה כרגע. לחצו על "+ הוסף אטרקציה" לבחירה מתוך 38 האטרקציות המאומתות בקטלוג.
+                הרשימה ריקה כרגע. לחצו על "+ הוסף מהקטלוג" לבחירת מקומות.
             </div>`;
-        counterEl.innerText = "0 אטרקציות";
+        counterEl.innerText = "0 מקומות";
         return;
     }
 
-    counterEl.innerText = `${tripStops.length} אטרקציות בתכנון`;
+    counterEl.innerText = `${tripStops.length} מקומות בתכנון להיום`;
 
-    listEl.innerHTML = tripStops.map((stop, idx) => `
-        <div class="planning-item">
-            <div class="item-head">
-                <div>
-                    <span class="item-title">${idx + 1}. ${stop.nameEn}</span>
-                    <span class="item-tag">${stop.categoryHeb}</span>
+    listEl.innerHTML = tripStops.map((stop, idx) => {
+        const subLabel = stop.subCategory ? `<span class="food-subtag">🏷️ ${stop.subCategory}</span>` : '';
+        return `
+            <div class="planning-item">
+                <div class="item-head">
+                    <div style="display:flex; align-items:center; gap:8px;">
+                        <span class="item-title">${idx + 1}. ${stop.nameEn}</span>
+                        <div class="tag-group">
+                            <span class="item-tag">${stop.categoryHeb}</span>
+                            ${subLabel}
+                        </div>
+                    </div>
+                    <button class="btn-del" onclick="removeStop(${idx})">הסר</button>
                 </div>
-                <button class="btn-del" onclick="removeStop(${idx})">הסר</button>
+                <div class="item-sub">⏱️ שהות: כ-${stop.stayHours} שעות &bull; ⭐ ${stop.googleRating} &bull; 💰 ${stop.familyCost}</div>
+                <input type="text" class="note-input" value="${stop.customNote || ''}" oninput="updateStopNote(${idx}, this.value)" placeholder="הערה אישית לתחנה זו...">
             </div>
-            <div class="item-sub">⏱️ שהות: כ-${stop.stayHours} שעות &bull; ⭐ ${stop.googleRating} &bull; 💰 ${stop.familyCost}</div>
-            <input type="text" class="note-input" value="${stop.customNote || ''}" oninput="updateStopNote(${idx}, this.value)" placeholder="הערה אישית לתחנה זו...">
-        </div>
-    `).join('');
+        `;
+    }).join('');
 }
 
 function calculateAndShowPlan() {
     if (tripStops.length === 0) {
-        alert("נא להוסיף לפחות אטרקציה אחת לפני הפעלת המסלול.");
+        alert("נא להוסיף לפחות מקום אחד לפני הפעלת המסלול.");
         return;
     }
 
+    const base = HOME_BASES[currentBaseId];
     const resultsSec = document.getElementById('resultsSection');
     const timelineEl = document.getElementById('flowTimeline');
 
@@ -1262,11 +740,11 @@ function calculateAndShowPlan() {
 
     html += `
         <div class="flow-step hotel-step">
-            <strong>🏨 יציאה ממלון הבית:</strong> ${HOME_BASE.name}
+            <strong>🏨 יציאה ממלון הבסיס:</strong> ${base.name} (${base.address})
         </div>
     `;
 
-    let prevPoint = HOME_BASE;
+    let prevPoint = base;
 
     tripStops.forEach((stop, idx) => {
         const legDist = calculateDistance(prevPoint.lat, prevPoint.lng, stop.lat, stop.lng);
@@ -1276,7 +754,8 @@ function calculateAndShowPlan() {
         totalTransitMins += transit.mins;
         totalStayHours += stop.stayHours;
 
-        const fromLabel = idx === 0 ? "מלון הבית" : `תחנה ${idx} (${prevPoint.nameEn})`;
+        const fromLabel = idx === 0 ? "מלון הבסיס" : `תחנה ${idx} (${prevPoint.nameEn})`;
+        const subBadge = stop.subCategory ? `<span class="food-subtag" style="margin-right:6px;">🏷️ ${stop.subCategory}</span>` : '';
 
         html += `
             <div class="flow-leg">
@@ -1292,8 +771,11 @@ function calculateAndShowPlan() {
 
         html += `
             <div class="flow-step">
-                <div style="display:flex; justify-content:space-between; margin-bottom:4px;">
-                    <strong>תחנה ${idx + 1}: ${stop.nameEn}</strong>
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+                    <div>
+                        <strong>תחנה ${idx + 1}: ${stop.nameEn}</strong>
+                        ${subBadge}
+                    </div>
                     <span style="font-size:12px; color:#0369a1; background:#e0f2fe; padding:2px 8px; border-radius:10px;">${stop.categoryHeb}</span>
                 </div>
                 <div style="font-size:13px; color:#475569; margin-bottom:6px;">${stop.descHeb}</div>
@@ -1307,7 +789,7 @@ function calculateAndShowPlan() {
         prevPoint = stop;
     });
 
-    const returnDist = calculateDistance(prevPoint.lat, prevPoint.lng, HOME_BASE.lat, HOME_BASE.lng);
+    const returnDist = calculateDistance(prevPoint.lat, prevPoint.lng, base.lat, base.lng);
     const returnTransit = estimateTransit(returnDist);
     totalTransitKm += returnDist;
     totalTransitMins += returnTransit.mins;
@@ -1319,11 +801,11 @@ function calculateAndShowPlan() {
                 <span>&bull;</span>
                 <span><strong>${returnDist.toFixed(1)} ק"מ</strong></span>
                 <span>&bull;</span>
-                <span>כ-${returnTransit.mins} דק' חזרה למלון הבית 🏨</span>
+                <span>כ-${returnTransit.mins} דק' חזרה למלון הבסיס 🏨</span>
             </div>
         </div>
         <div class="flow-step hotel-step">
-            <strong>🏁 סיום וחזרה למלון:</strong> ${HOME_BASE.name}
+            <strong>🏁 סיום וחזרה למלון:</strong> ${base.name}
         </div>
     `;
 
@@ -1344,14 +826,19 @@ function hideResults() {
 
 function openInGoogleMaps() {
     if (tripStops.length === 0) return;
-    const origin = encodeURIComponent(HOME_BASE.name + ", Krakow");
-    const waypoints = tripStops.map(s => encodeURIComponent(s.nameEn + ", Krakow")).join('|');
-    const mapsUrl = `https://www.google.com/maps/dir/?api=1&origin=${origin}&destination=${origin}&waypoints=${waypoints}&travelmode=walking`;
+    const base = HOME_BASES[currentBaseId];
+    const origin = encodeURIComponent(base.name + ", Poland");
+    const waypoints = tripStops.map(s => encodeURIComponent(s.nameEn + ", Poland")).join('|');
+    const travelMode = currentBaseId === 2 ? 'driving' : 'walking';
+    const mapsUrl = `https://www.google.com/maps/dir/?api=1&origin=${origin}&destination=${origin}&waypoints=${waypoints}&travelmode=${travelMode}`;
     window.open(mapsUrl, '_blank');
 }
 
 function updateUrl() {
-    const state = tripStops.map(s => ({ id: s.id, note: s.customNote }));
+    const state = {
+        baseId: currentBaseId,
+        stops: tripStops.map(s => ({ id: s.id, note: s.customNote }))
+    };
     const encoded = encodeURIComponent(JSON.stringify(state));
     window.history.replaceState(null, null, `?trip=${encoded}`);
 }
@@ -1366,10 +853,21 @@ function loadTripFromUrl() {
 
     try {
         const parsed = JSON.parse(decodeURIComponent(data));
-        tripStops = parsed.map(item => {
-            const base = ATTRACTIONS_CATALOG.find(a => a.id === item.id);
+        if (parsed.baseId && HOME_BASES[parsed.baseId]) {
+            currentBaseId = parsed.baseId;
+            document.querySelectorAll('.base-tab').forEach(b => b.classList.remove('active'));
+            const activeTab = document.getElementById(`tab-base-${currentBaseId}`);
+            if (activeTab) activeTab.classList.add('active');
+            updateBaseUI();
+        }
+
+        const catalog = getActiveCatalog();
+        const stopsData = parsed.stops || parsed;
+        tripStops = stopsData.map(item => {
+            const base = catalog.find(a => a.id === item.id);
             return base ? { ...base, customNote: item.note || base.defaultNote } : null;
         }).filter(Boolean);
+
         renderPlanningList();
     } catch (e) {
         console.error(e);
@@ -1386,21 +884,23 @@ function showToast(msg) {
 
 function shareTrip() {
     if (tripStops.length === 0) {
-        alert("אין תחנות במסלול לשיתוף.");
+        alert("אין מקומות במסלול לשיתוף.");
         return;
     }
-    
+
     updateUrl();
     const url = window.location.href;
+    const base = HOME_BASES[currentBaseId];
 
-    let text = `🗓️ *המסלול המתוכנן לקרקוב:*\n🏨 *מלון הבית:* ${HOME_BASE.name}\n\n`;
+    let text = `🗓️ *מסלול יומי מתוכנן (${base.region === 'zakopane' ? 'זאקופנה והרי הטטרה' : 'קרקוב'}):*\n🏨 *מלון הבסיס:* ${base.name}\n\n`;
     tripStops.forEach((stop, i) => {
-        text += `*${i+1}. ${stop.nameEn}* (${stop.categoryHeb})\n`;
+        const sub = stop.subCategory ? ` [${stop.subCategory}]` : '';
+        text += `*${i+1}. ${stop.nameEn}* (${stop.categoryHeb}${sub})\n`;
         text += `⏱️ שהות: כ-${stop.stayHours} שעות | ⭐ דירוג: ${stop.googleRating}\n`;
         if (stop.customNote) text += `💡 הערה: ${stop.customNote}\n`;
         text += `\n`;
     });
-    text += `🔗 *לצפייה במסלול המלא:* ${url}`;
+    text += `🔗 *לצפייה במסלול המלא וחישובי זמנים:* ${url}`;
 
     navigator.clipboard.writeText(text).then(() => {
         showToast("תקציר המסלול והקישור הועתקו ללוח!");
